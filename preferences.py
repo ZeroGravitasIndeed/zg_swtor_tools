@@ -4,7 +4,7 @@ class addonPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
  
     swtor_resources_path: bpy.props.StringProperty(
-        name = 'swtor_resources_path',
+        name = "'resources' path",
         description = 'Path to "resources" folder produced by a SWTOR assets extraction',
         subtype = "DIR_PATH",
         default = "resources",
@@ -13,9 +13,8 @@ class addonPreferences(bpy.types.AddonPreferences):
  
     def draw(self, context):
         layout = self.layout
-        layout.label(text='Enter the path to the "resources" folder created by a SWTOR assets extraction')
-        row = layout.row()
-        row.prop(self, 'swtor_resources_path', expand=True)
+        layout.label(text="Path to the 'resources' folder created by a SWTOR assets extraction")
+        layout.prop(self, 'swtor_resources_path', expand=True)
  
 
 # Registrations

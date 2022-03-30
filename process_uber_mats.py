@@ -1,9 +1,9 @@
+from tkinter.ttk import Progressbar
 import bpy
 import pathlib
-import re
 import xml.etree.ElementTree as ET
 import addon_utils
-
+from bpy_extras.wm_utils.progress_report import ProgressReport
 
 def detect_gr2_addon_version():
     # for future compatibility with new shaders
@@ -18,7 +18,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
     bl_label = "SWTOR Tools"
     bl_idname = "zgswtor.process_uber_mats"
-    bl_description = "Checks for Uber materials in selected objects and replaces\ntheir default generic Principled Shaders with Uber ones\nand associated textures\n\nREQUIRES A SELECTION OF OBJECTS AND THE PRESENCE\nOF LEGACY SWTOR SHADERS IN THE .BLEND FILE"
+    bl_description = "Checks for Uber materials in selected objects and replaces\nany default generic Principled Shader in them with Uber ones\nand associated textures\n\nRequires a selection of objects to oeprate on\nand the presence of Legacy SWTOR Shaders in the .blend file"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -33,7 +33,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
         # Test the existence of the shaders subfolder to validate the SWTOR "resources" folder
         if pathlib.Path(swtor_shaders_path).exists() == False:
-            self.report({"WARNING"}, "Can't find the SWTOR Materials subfolder. Please check this add-on's preferences: either the path to the extracted assets 'resources' folder is incorrect or the resources > art > shaders > materials subfolder is missing.")
+            self.report({"WARNING"}, "Unable to find the SWTOR Materials subfolder. Please check this add-on's preferences: either the path to the extracted assets 'resources' folder is incorrect or the resources > art > shaders > materials subfolder is missing.")
             return {"CANCELLED"}
 
         mats = []
@@ -41,12 +41,13 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
             for mat_slot in obj.material_slots:
                 mats.append(bpy.data.materials[mat_slot.material.name])
 
-        print(mats)
-
+        mats_count = 0
+        bpy.types.WindowManager.progress_begin(0, len(mats))
 
         for mat in mats:
 
-            # print(mat.name)
+            bpy.types.WindowManager.progress_update(mats_count)
+            mats_count += 1
 
             if (r"Template: " not in mat.name) and (r"default" not in mat.name) and mat.users:
 
@@ -181,6 +182,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                     links.new(uber_nodegroup.inputs[4],_s.outputs[1])
                     _s.image = GlossMap_image
 
+        bpy.types.WindowManager.progress_end()
         return {"FINISHED"}
 
 
