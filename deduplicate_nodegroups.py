@@ -61,3 +61,6 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(ZGSWTOR_OT_deduplicate_nodegroups)
+
+if __name__ == "__main__":
+    register()

@@ -9,9 +9,8 @@ bl_info = {
     "version": (1, 0),
     "blender": (2, 83, 0),
     "category": "SWTOR",
-    "location": "Operator Search",
+    "location": "View 3D > Sidebar > ZG SWTOR",
     "description": "Diverse SWTOR asset-handling tools",
-    "warning": "This Add-on's Uber Material Processor tool requires the SWTOR Legacy Uber Shader. Please read its tooltip before use",
     "doc_url": "",
     "tracker_url": "",
 }

@@ -4,11 +4,19 @@ import bmesh
 # Main
 
 class ZGSWTOR_OT_remove_doubles(bpy.types.Operator):
-
     bl_idname = "zgswtor.remove_doubles"
     bl_label = "SWTOR Tools"
     bl_options = {'REGISTER', "UNDO"}
     bl_description = "Removes double vertices (does a Merge by Distance\nto the vertices of selected objects using a\nthreshold of 0.0000001).\nProcesses each selected object individually.\n\nREQUIRES A SELECTION OF OBJECTS"
+
+    # Check that there is a selection of objects (greys-out the UI button otherwise) 
+    @classmethod
+    def poll(cls,context):
+        if bpy.context.selected_objects:
+            return True
+        else:
+            return False
+    
 
     def execute(self, context):
 
@@ -45,3 +53,6 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(ZGSWTOR_OT_remove_doubles)
+
+if __name__ == "__main__":
+    register()
