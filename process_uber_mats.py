@@ -30,12 +30,6 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
         default = False
         )
     
-    use_Hidden_bool: bpy.props.BoolProperty(
-        name="Use 'Visibility' data",
-        description="Hides and disables objects if their .mat files' 'Visibility' element contains a 'Hidden'.\nThis is typical of collision objects, usually a nuisance in environment-type game objects.",
-        default = False
-        )
-
     use_overwrite_bool: bpy.props.BoolProperty(
         name="Overwrite Uber materials",
         description='Processes the selected objects Uber materials even if they have an Uber shader already, effectively "regenerating" those ones',
@@ -49,7 +43,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
             return {"CANCELLED"}
 
         # --------------------------------------------------------------
-        # Get the extracted SWTOR assets' "resources" folder from the add-on preferences. 
+        # Get the extracted SWTOR assets' "resources" folder from the add-on's preferences. 
         swtor_resources_path = bpy.context.preferences.addons[__package__].preferences.swtor_resources_path
         swtor_shaders_path = swtor_resources_path + "/art/shaders/materials"
 
@@ -62,183 +56,218 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
         # Check which version of the SWTOR shaders are available
         if addon_utils.check("io_scene_gr2_legacy")[1]:
             gr2_addon_legacy = True
-        else:
+        elif addon_utils.check("io_scene_gr2")[1]:
             gr2_addon_legacy = False
+        else:
+            self.report({"WARNING"}, "No version of the 'io_scene_gr2' add-on is enabled.")
+            return {"CANCELLED"}
+
 
         # Main loop
-        for obj in selected_objects:
+        for ob in selected_objects:
+            if ob.type == "MESH":
 
-            for mat_slot in obj.material_slots:
+                for mat_slot in ob.material_slots:
 
-                mat = mat_slot.material
+                    mat = mat_slot.material
 
-                if (r"Template: " not in mat.name) and (r"default" not in mat.name) and mat.users:
+                    if (r"Template: " not in mat.name) and (r"default" not in mat.name) and mat.users:
 
-                    # By looking for the material in the shaders folder we'll inherently
-                    # filter out recolorable materials such as skin, eyes or armor already,
-                    # finding only the Uber and a few Creature ones.
-                    mat_tree_filepath = swtor_shaders_path + "/" + mat.name + ".mat"
-                    try:
-                        mat_tree = ET.parse(mat_tree_filepath)
-                    except:
-                        continue  # disregard and go for the next material
-                    mat_root = mat_tree.getroot()
-
-                    mat_Derived = mat_root.find("Derived").text
-
-                    if mat_Derived == "Uber":
-
-                        # ----------------------------------------------
-                        # Basic settings
-                        mat.use_nodes = True
-                        mat.use_fake_user = False
-
-                        # Read and set some basic material attributes
-                        mat_AlphaMode = mat_root.find("AlphaMode").text
-                        mat_AlphaTestValue = mat_root.find("AlphaTestValue").text
-                        mat_IsTwoSided = mat_root.find("IsTwoSided").text
-                        mat_Visibility = mat_root.find("Visibility").text
-
-                        # Adjust transparency and shadows
-                        mat.alpha_threshold = float(mat_AlphaTestValue)
-                        if mat_AlphaMode == 'Test':
-                            mat.blend_method = 'CLIP'
-                            mat.shadow_method = 'CLIP'
-                        elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
-                            mat.blend_method = 'BLEND'
-                            mat.shadow_method = 'HASHED'
-                        else:
-                            mat.blend_method = 'OPAQUE'
-                            mat.shadow_method = 'NONE'
-
-                        # Set Backface Culling
-                        if mat_IsTwoSided == "False" and self.use_IsTwoSided_bool == True:
-                            mat.use_backface_culling = True
-
-                        # Set visibility (hides collision objects)
-                        # NOTE: consider hiding only if all slotted materials are hidden
-                        if mat_Visibility == "Hidden" and self.use_Hidden_bool == True:
-                            obj = obj.hide_set(True)
-                            obj = obj.hide_viewport(True)
-                            obj = obj.hide_render(True)
-                        
-                        # ----------------------------------------------
-                        # Decide whether to empty the material for processing or disregard it
-                        mat_nodes = mat.node_tree.nodes
-                        if self.use_overwrite_bool == True:
-                            for node in mat_nodes:
-                                mat_nodes.remove(node)
-                        elif "Principled BSDF" in mat_nodes and not (("Uber Shader" in mat_nodes) or ("ShaderNodeHeroEngine" in mat_nodes)):
-                            for node in mat_nodes:
-                                mat_nodes.remove(node)
-                        else:
+                        # By looking for the material in the shaders folder we'll inherently
+                        # filter out recolorable materials such as skin, eyes or armor already,
+                        # finding only the Uber and a few Creature ones.
+                        mat_tree_filepath = swtor_shaders_path + "/" + mat.name + ".mat"
+                        try:
+                            mat_tree = ET.parse(mat_tree_filepath)
+                        except:
                             continue  # disregard and go for the next material
+                        mat_root = mat_tree.getroot()
 
-                        # Add Output node to emptied material
-                        # (why can't I do output_node = mat_node.new('ShaderNodeOutputMaterial') instead?)
-                        output_node = mat.node_tree.nodes.new('ShaderNodeOutputMaterial')
+                        mat_Derived = mat_root.find("Derived").text
 
+                        if mat_Derived == "Uber":
 
-                        # ----------------------------------------------
-                        # Gather texture maps
-                        mat_inputs = mat_root.findall("input")
-                        for mat_input in mat_inputs:
-                            mat_semantic = mat_input.find("semantic").text
-                            mat_type = mat_input.find("type").text
-                            mat_value = mat_input.find("value").text
-
-                            # Parsing and loading texture maps
-
-                            if mat_type == "texture":
-                                mat_value = mat_value.replace("\\", "/")
-
-                            if mat_semantic == "DiffuseMap":
-                                try:
-                                    DiffuseMap_image = bpy.data.images.load(swtor_resources_path + "/" + mat_value + ".dds", check_existing=True)
-                                    DiffuseMap_image.colorspace_settings.name = 'Raw'
-                                except:
-                                    DiffuseMap_image = None
-                                
-                            if mat_semantic == "RotationMap1":
-                                try:
-                                    RotationMap_image = bpy.data.images.load(swtor_resources_path + "/" + mat_value + ".dds", check_existing=True)
-                                    RotationMap_image.colorspace_settings.name = 'Raw'
-                                except:
-                                    RotationMap_image = None
-
-                            if mat_semantic == "GlossMap":
-                                try:
-                                    GlossMap_image = bpy.data.images.load(swtor_resources_path + "/" + mat_value + ".dds", check_existing=True)
-                                    GlossMap_image.colorspace_settings.name = 'Raw'
-                                except:
-                                    GlossMap_image = None
-
-
-
-
-                        # Add Uber Shader and link it to Output node
-                        if not "Uber Shader" in mat_nodes:
-                            if gr2_addon_legacy:
-                                uber_nodegroup = mat_nodes.new(type="ShaderNodeGroup")
-                                uber_nodegroup.node_tree = bpy.data.node_groups["Uber Shader"]
+                            # ----------------------------------------------
+                            # Decide whether to empty the material for processing or disregard it
+                            mat_nodes = mat.node_tree.nodes
+                            if self.use_overwrite_bool == True:
+                                for node in mat_nodes:
+                                    mat_nodes.remove(node)
+                            elif "Principled BSDF" in mat_nodes and not (("Uber Shader" in mat_nodes) or ("ShaderNodeHeroEngine" in mat_nodes)):
+                                for node in mat_nodes:
+                                    mat_nodes.remove(node)
                             else:
-                                uber_nodegroup = mat_nodes.new('ShaderNodeHeroEngine')
-#                               uber_nodegroup.derived = 'UBER'
-                        else:
-                            uber_nodegroup = mat_nodes["Uber Shader"]
+                                continue  # Entirely disregard material and go for the next one
+
+
+                            # ----------------------------------------------
+                            # Basic material settings
+                            # mat.use_nodes = True  # Redundant?
+                            mat.use_fake_user = False
+
+                            # Read and set some basic material attributes
+                            mat_AlphaMode = mat_root.find("AlphaMode").text
+                            mat_AlphaTestValue = mat_root.find("AlphaTestValue").text
+                            mat_IsTwoSided = mat_root.find("IsTwoSided").text
+
+                            # Adjust transparency and shadows
+                            mat.alpha_threshold = float(mat_AlphaTestValue)
+                            if mat_AlphaMode == 'Test':
+                                mat.blend_method = 'CLIP'
+                                mat.shadow_method = 'CLIP'
+                            elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
+                                mat.blend_method = 'BLEND'
+                                mat.shadow_method = 'HASHED'
+                            else:
+                                mat.blend_method = 'OPAQUE'
+                                mat.shadow_method = 'NONE'
+
+                            # Set Backface Culling
+                            mat.use_backface_culling = (mat_IsTwoSided == "False" and self.use_IsTwoSided_bool == True)
                         
-                        uber_nodegroup.location = 0, 0
-                        uber_nodegroup.width = 300
-                        uber_nodegroup.width_hidden = 300
-                        uber_nodegroup.name = "Uber Shader"
-                        uber_nodegroup.label = "Uber Shader"
 
-                        output_node.location = 400, 0
-
-                        links = mat.node_tree.links
-
-                        links.new(output_node.inputs[0],uber_nodegroup.outputs[0])
+                            # Add Output node to emptied material
+                            # (why can't I do output_node = mat_node.new('ShaderNodeOutputMaterial') instead?)
+                            output_node = mat.node_tree.nodes.new('ShaderNodeOutputMaterial')
 
 
-                        if gr2_addon_legacy:
+                            # ----------------------------------------------
+                            # Gather texture maps
 
-                            # Add Diffuse node and link it to Uber shader
-                            if not "_d DiffuseMap" in mat_nodes:
-                                _d = mat_nodes.new(type='ShaderNodeTexImage')
-                                _d.name = _d.label = "_d DiffuseMap"
+                            DiffuseMap_image = None
+                            RotationMap_image = None
+                            GlossMap_image = None
+
+                            texturemap_image = None
+
+                            mat_inputs = mat_root.findall("input")
+                            for mat_input in mat_inputs:
+                                mat_semantic = mat_input.find("semantic").text
+                                mat_type = mat_input.find("type").text
+                                mat_value = mat_input.find("value").text
+
+                                # Parsing and loading texture maps
+
+                                if mat_type == "texture":
+                                    mat_value = mat_value.replace("\\", "/")
+                                    texturemap_path = swtor_resources_path + "/" + mat_value + ".dds"
+                                    try:
+                                        texturemap_image = bpy.data.images.load(texturemap_path, check_existing=True)
+                                        texturemap_image.colorspace_settings.name = 'Raw'
+                                    except:
+                                        pass
+                                    if mat_semantic == "DiffuseMap":
+                                        DiffuseMap_image = texturemap_image
+                                    elif mat_semantic == "RotationMap1":
+                                        RotationMap_image = texturemap_image
+                                    elif mat_semantic == "GlossMap":
+                                        GlossMap_image = texturemap_image
+
+
+                            # ----------------------------------------------
+                            # Add Uber Shader and connect texturemaps
+
+                            if gr2_addon_legacy:
+                                # For Legacy version of the shader
+
+                                # Add Uber Shader and link it to Output node
+                                if not "Uber Shader" in mat_nodes:
+                                    uber_nodegroup = mat_nodes.new(type="ShaderNodeGroup")
+                                    uber_nodegroup.node_tree = bpy.data.node_groups["Uber Shader"]
+                                else:
+                                    uber_nodegroup = mat_nodes["Uber Shader"]
+                                
+                                uber_nodegroup.location = 0, 0
+                                uber_nodegroup.width = 300
+                                uber_nodegroup.width_hidden = 300
+                                uber_nodegroup.name = "Uber Shader"
+                                uber_nodegroup.label = "Uber Shader"
+
+                                output_node.location = 400, 0
+
+                                links = mat.node_tree.links
+
+                                links.new(output_node.inputs[0],uber_nodegroup.outputs[0])
+
+
+                                # Add Diffuse node and link it to Uber shader
+                                if not "_d DiffuseMap" in mat_nodes:
+                                    _d = mat_nodes.new(type='ShaderNodeTexImage')
+                                    _d.name = _d.label = "_d DiffuseMap"
+                                else:
+                                    _d = mat_nodes["_d DiffuseMap"]
+                                _d.location = (-464, 300)
+                                _d.width = _d.width_hidden = 300
+                                links.new(uber_nodegroup.inputs[0],_d.outputs[0])
+                                _d.image = DiffuseMap_image
+
+
+                                # Add Rotation node and link it to Uber shader
+                                if not "_n RotationMap" in mat_nodes:
+                                    _n = mat_nodes.new(type='ShaderNodeTexImage')
+                                    _n.name = _n.label = "_n RotationMap"
+                                else:
+                                    _n = mat_nodes["_n RotationMap"]
+                                _n.location = (-464, 0)
+                                _n.width = _n.width_hidden = 300
+                                links.new(uber_nodegroup.inputs[1],_n.outputs[0])
+                                links.new(uber_nodegroup.inputs[2],_n.outputs[1])
+                                _n.image = RotationMap_image
+
+
+                                # Add Gloss node and link it to Uber shader
+                                if not "_s GlossMap" in mat_nodes:
+                                    _s = mat_nodes.new(type='ShaderNodeTexImage')
+                                    _s.name = _s.label = "_s GlossMap"
+                                else:
+                                    _s = mat_nodes["_s GlossMap"]
+                                _s.location = (-464, -300)
+                                _s.width = _s.width_hidden = 300
+                                links.new(uber_nodegroup.inputs[3],_s.outputs[0])
+                                links.new(uber_nodegroup.inputs[4],_s.outputs[1])
+                                _s.image = GlossMap_image
+
                             else:
-                                _d = mat_nodes["_d DiffuseMap"]
-                            _d.location = (-464, 300)
-                            _d.width = _d.width_hidden = 300
-                            links.new(uber_nodegroup.inputs[0],_d.outputs[0])
-                            _d.image = DiffuseMap_image
+                                # For current version of the shader
 
-                            # Add Rotation node and link it to Uber shader
-                            if not "_n RotationMap" in mat_nodes:
-                                _n = mat_nodes.new(type='ShaderNodeTexImage')
-                                _n.name = _n.label = "_n RotationMap"
-                            else:
-                                _n = mat_nodes["_n RotationMap"]
-                            _n.location = (-464, 0)
-                            _n.width = _n.width_hidden = 300
-                            links.new(uber_nodegroup.inputs[1],_n.outputs[0])
-                            links.new(uber_nodegroup.inputs[2],_n.outputs[1])
-                            _n.image = RotationMap_image
+                                # Add Uber Shader and link it to Output node
+                                if not "ShaderNodeHeroEngine" in mat_nodes:
+                                    uber_nodegroup = mat_nodes.new('ShaderNodeHeroEngine')
+                                else:
+                                    uber_nodegroup = mat_nodes["Uber Shader"]
 
-                            # Add Gloss node and link it to Uber shader
-                            if not "_s GlossMap" in mat_nodes:
-                                _s = mat_nodes.new(type='ShaderNodeTexImage')
-                                _s.name = _s.label = "_s GlossMap"
-                            else:
-                                _s = mat_nodes["_s GlossMap"]
-                            _s.location = (-464, -300)
-                            _s.width = _s.width_hidden = 300
-                            links.new(uber_nodegroup.inputs[3],_s.outputs[0])
-                            links.new(uber_nodegroup.inputs[4],_s.outputs[1])
-                            _s.image = GlossMap_image
+                                uber_nodegroup.derived = 'UBER'
 
-                        else:
+                                uber_nodegroup.location = [-200, 100]
 
+                                uber_nodegroup.location = 0, 0
+                                uber_nodegroup.width = 300
+                                uber_nodegroup.width_hidden = 300
+                                uber_nodegroup.name = "SWTOR"
+                                uber_nodegroup.label = ""
+
+                                output_node.location = 400, 0
+
+                                links = mat.node_tree.links
+
+                                links.new(output_node.inputs[0],uber_nodegroup.outputs[0])
+
+
+                                # Link the two nodes
+                                links.new(output_node.inputs['Surface'],uber_nodegroup.outputs['Shader'])
+
+                                # Set shader's texturemap nodes
+
+                                if 'Uber Shader' in mat_nodes:
+                                    underlying_uber_nodegroup = uber_nodegroup.node_tree
+                                    underlying_uber_nodegroup["diffuseMap"] = DiffuseMap_image
+                                    underlying_uber_nodegroup["glossMap"] = GlosseMap_image
+                                    underlying_uber_nodegroup["rotationMap"] = RotationMap_image
+                                else:
+                                    print("No underlying nodegroup found.")
+
+
+                        elif mat_Derived == "EmissiveOnly":
                             pass
 
         return {"FINISHED"}
