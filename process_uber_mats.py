@@ -1,8 +1,10 @@
+# This code is horrible. it just happens to work. Mostly.
+# So, without further ado…
+
 import bpy
 import pathlib
 import xml.etree.ElementTree as ET
 import addon_utils
-
 
 
 class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
@@ -112,13 +114,16 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
                             # Adjust transparency and shadows
                             mat.alpha_threshold = float(mat_AlphaTestValue)
+                            
                             if mat_AlphaMode == 'Test':
                                 mat.blend_method = 'CLIP'
                                 mat.shadow_method = 'CLIP'
                             elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
+                                mat_AlphaMode == 'Blend'
                                 mat.blend_method = 'BLEND'
                                 mat.shadow_method = 'HASHED'
                             else:
+                                mat_AlphaMode == 'None'
                                 mat.blend_method = 'OPAQUE'
                                 mat.shadow_method = 'NONE'
 
@@ -237,6 +242,8 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                     uber_nodegroup = mat_nodes["Uber Shader"]
 
                                 uber_nodegroup.derived = 'UBER'
+                                uber_nodegroup.alpha_mode = mat.blend_method
+                                uber_nodegroup.alpha_test_value = mat.alpha_threshold
 
                                 uber_nodegroup.location = 0, 0
                                 uber_nodegroup.width = 300
@@ -250,10 +257,10 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
                                 # Set shader's texturemap nodes
 
-                                underlying_nodegroup = uber_nodegroup.node_tree.nodes
-                                underlying_nodegroup["_d"].image = DiffuseMap_image
-                                underlying_nodegroup["_s"].image = GlossMap_image
-                                underlying_nodegroup["_n"].image = RotationMap_image
+                                uber_nodegroup_nodes = uber_nodegroup.node_tree.nodes
+                                uber_nodegroup_nodes["_d"].image = DiffuseMap_image
+                                uber_nodegroup_nodes["_s"].image = GlossMap_image
+                                uber_nodegroup_nodes["_n"].image = RotationMap_image
 
 
                         elif mat_Derived == "EmissiveOnly":
