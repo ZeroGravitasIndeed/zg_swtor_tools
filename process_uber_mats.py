@@ -238,33 +238,22 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
                                 uber_nodegroup.derived = 'UBER'
 
-                                uber_nodegroup.location = [-200, 100]
-
                                 uber_nodegroup.location = 0, 0
                                 uber_nodegroup.width = 300
                                 uber_nodegroup.width_hidden = 300
-                                uber_nodegroup.name = "SWTOR"
-                                uber_nodegroup.label = ""
 
                                 output_node.location = 400, 0
 
-                                links = mat.node_tree.links
-
-                                links.new(output_node.inputs[0],uber_nodegroup.outputs[0])
-
-
                                 # Link the two nodes
-                                links.new(output_node.inputs['Surface'],uber_nodegroup.outputs['Shader'])
+                                links = mat.node_tree.links
+                                links.new(output_node.inputs[0],uber_nodegroup.outputs[0])
 
                                 # Set shader's texturemap nodes
 
-                                if 'Uber Shader' in mat_nodes:
-                                    underlying_uber_nodegroup = uber_nodegroup.node_tree
-                                    underlying_uber_nodegroup["diffuseMap"] = DiffuseMap_image
-                                    underlying_uber_nodegroup["glossMap"] = GlosseMap_image
-                                    underlying_uber_nodegroup["rotationMap"] = RotationMap_image
-                                else:
-                                    print("No underlying nodegroup found.")
+                                underlying_nodegroup = uber_nodegroup.node_tree.nodes
+                                underlying_nodegroup["_d"].image = DiffuseMap_image
+                                underlying_nodegroup["_s"].image = GlossMap_image
+                                underlying_nodegroup["_n"].image = RotationMap_image
 
 
                         elif mat_Derived == "EmissiveOnly":
