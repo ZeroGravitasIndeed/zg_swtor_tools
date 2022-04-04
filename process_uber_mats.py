@@ -1,10 +1,12 @@
 # This code is horrible. it just happens to work. Mostly.
+# PEP-8 what's that. Read my Indent Rollercoaster Model manifest!
 # So, without further ado…
 
 import bpy
 import pathlib
 import xml.etree.ElementTree as ET
 import addon_utils
+import timeit
 
 
 class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
@@ -80,56 +82,32 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                         # finding only the Uber and a few Creature ones.
                         mat_tree_filepath = swtor_shaders_path + "/" + mat.name + ".mat"
                         try:
-                            mat_tree = ET.parse(mat_tree_filepath)
+                            matxml_tree = ET.parse(mat_tree_filepath)
                         except:
                             continue  # disregard and go for the next material
-                        mat_root = mat_tree.getroot()
+                        matxml_root = matxml_tree.getroot()
 
-                        mat_Derived = mat_root.find("Derived").text
+                        matxml_derived = matxml_root.find("Derived").text
 
-                        if mat_Derived == "Uber":
+                        if matxml_derived == "Uber" or matxml_derived == "EmissiveOnly":
 
-                            # ----------------------------------------------
-                            # Decide whether to empty the material for processing or disregard it
-                            mat_nodes = mat.node_tree.nodes
-                            if self.use_overwrite_bool == True:
-                                for node in mat_nodes:
-                                    mat_nodes.remove(node)
-                            elif "Principled BSDF" in mat_nodes and not (("Uber Shader" in mat_nodes) or ("ShaderNodeHeroEngine" in mat_nodes)):
-                                for node in mat_nodes:
-                                    mat_nodes.remove(node)
+                            if self.use_overwrite_bool == True or ( "Principled BSDF" in mat_nodes and not ( ("Uber Shader" in mat_nodes) or ("ShaderNodeHeroEngine" in mat_nodes) ) ):
+                                mat.node_tree.nodes(clear)
                             else:
                                 continue  # Entirely disregard material and go for the next one
 
-
                             # ----------------------------------------------
                             # Basic material settings
-                            # mat.use_nodes = True  # Redundant?
+
+                            mat.use_nodes = True  # Redundant?
                             mat.use_fake_user = False
 
+                            mat_nodes = mat.node_tree.nodes
+
                             # Read and set some basic material attributes
-                            mat_AlphaMode = mat_root.find("AlphaMode").text
-                            mat_AlphaTestValue = mat_root.find("AlphaTestValue").text
-                            mat_IsTwoSided = mat_root.find("IsTwoSided").text
-
-                            # Adjust transparency and shadows
-                            mat.alpha_threshold = float(mat_AlphaTestValue)
-                            
-                            if mat_AlphaMode == 'Test':
-                                mat.blend_method = 'CLIP'
-                                mat.shadow_method = 'CLIP'
-                            elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
-                                mat_AlphaMode == 'Blend'
-                                mat.blend_method = 'BLEND'
-                                mat.shadow_method = 'HASHED'
-                            else:
-                                mat_AlphaMode == 'None'
-                                mat.blend_method = 'OPAQUE'
-                                mat.shadow_method = 'NONE'
-
-                            # Set Backface Culling
-                            mat.use_backface_culling = (mat_IsTwoSided == "False" and self.use_IsTwoSided_bool == True)
-                        
+                            mat_AlphaMode = matxml_root.find("AlphaMode").text
+                            mat_AlphaTestValue = matxml_root.find("AlphaTestValue").text
+                            mat_IsTwoSided = matxml_root.find("IsTwoSided").text                        
 
                             # Add Output node to emptied material
                             # (why can't I do output_node = mat_node.new('ShaderNodeOutputMaterial') instead?)
@@ -139,48 +117,66 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             # ----------------------------------------------
                             # Gather texture maps
 
-                            DiffuseMap_image = None
-                            RotationMap_image = None
-                            GlossMap_image = None
+                            diffusemap_image = None
+                            rotationmap_image = None
+                            glossmap_image = None
 
-                            texturemap_image = None
+                            temp_image = None
+                            temp_imagepath = None
 
-                            mat_inputs = mat_root.findall("input")
-                            for mat_input in mat_inputs:
-                                mat_semantic = mat_input.find("semantic").text
-                                mat_type = mat_input.find("type").text
-                                mat_value = mat_input.find("value").text
+                            matxml_inputs = matxml_root.findall("input")
+                            for matxml_input in matxml_inputs:
+                                matxml_semantic = matxml_input.find("semantic").text
+                                matxml_type = matxml_input.find("type").text
+                                matxml_value = matxml_input.find("value").text
 
                                 # Parsing and loading texture maps
 
-                                if mat_type == "texture":
-                                    mat_value = mat_value.replace("\\", "/")
-                                    texturemap_path = swtor_resources_path + "/" + mat_value + ".dds"
+                                if matxml_type == "texture":
+                                    matxml_value = matxml_value.replace("\\", "/")
+                                    temp_imagepath = swtor_resources_path + "/" + matxml_value + ".dds"
                                     try:
-                                        texturemap_image = bpy.data.images.load(texturemap_path, check_existing=True)
-                                        texturemap_image.colorspace_settings.name = 'Raw'
+                                        temp_image = bpy.data.images.load(temp_imagepath, check_existing=True)
+                                        temp_image.colorspace_settings.name = 'Raw'
                                     except:
                                         pass
-                                    if mat_semantic == "DiffuseMap":
-                                        DiffuseMap_image = texturemap_image
-                                    elif mat_semantic == "RotationMap1":
-                                        RotationMap_image = texturemap_image
-                                    elif mat_semantic == "GlossMap":
-                                        GlossMap_image = texturemap_image
+                                    if matxml_semantic == "DiffuseMap":
+                                        diffusemap_image = temp_image
+                                    elif matxml_semantic == "RotationMap1":
+                                        rotationmap_image = temp_image
+                                    elif matxml_semantic == "GlossMap":
+                                        glossmap_image = temp_image
 
 
                             # ----------------------------------------------
                             # Add Uber Shader and connect texturemaps
 
                             if gr2_addon_legacy:
+                                # ------------------------------------------
                                 # For Legacy version of the shader
 
-                                # Add Uber Shader and link it to Output node
-                                if not "Uber Shader" in mat_nodes:
-                                    uber_nodegroup = mat_nodes.new(type="ShaderNodeGroup")
-                                    uber_nodegroup.node_tree = bpy.data.node_groups["Uber Shader"]
+                                # Adjust transparency and shadows
+                                mat.alpha_threshold = float(mat_AlphaTestValue)
+
+                                if mat_AlphaMode == 'Test':
+                                    mat.blend_method = 'CLIP'
+                                    mat.shadow_method = 'CLIP'
+                                elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
+                                    mat_AlphaMode == 'Blend'
+                                    mat.blend_method = 'BLEND'
+                                    mat.shadow_method = 'HASHED'
                                 else:
-                                    uber_nodegroup = mat_nodes["Uber Shader"]
+                                    mat_AlphaMode == 'None'
+                                    mat.blend_method = 'OPAQUE'
+                                    mat.shadow_method = 'NONE'
+
+                                # Set Backface Culling
+                                mat.use_backface_culling = (mat_IsTwoSided == "False" and self.use_IsTwoSided_bool == True)
+
+
+                                # Add Uber Shader and link it to Output node
+                                uber_nodegroup = mat_nodes.new(type="ShaderNodeGroup")
+                                uber_nodegroup.node_tree = bpy.data.node_groups["Uber Shader"]
                                 
                                 uber_nodegroup.location = 0, 0
                                 uber_nodegroup.width = 300
@@ -204,20 +200,24 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 _d.location = (-464, 300)
                                 _d.width = _d.width_hidden = 300
                                 links.new(uber_nodegroup.inputs[0],_d.outputs[0])
-                                _d.image = DiffuseMap_image
+                                _d.image = diffusemap_image
 
 
                                 # Add Rotation node and link it to Uber shader
-                                if not "_n RotationMap" in mat_nodes:
-                                    _n = mat_nodes.new(type='ShaderNodeTexImage')
-                                    _n.name = _n.label = "_n RotationMap"
+                                if matxml_derived != "EmissiveOnly"
+                                    if not "_n RotationMap" in mat_nodes:
+                                        _n = mat_nodes.new(type='ShaderNodeTexImage')
+                                        _n.name = _n.label = "_n RotationMap"
+                                    else:
+                                        _n = mat_nodes["_n RotationMap"]
+                                    _n.location = (-464, 0)
+                                    _n.width = _n.width_hidden = 300
+                                    links.new(uber_nodegroup.inputs[1],_n.outputs[0])
+                                    links.new(uber_nodegroup.inputs[2],_n.outputs[1])
+                                    _n.image = rotationmap_image
                                 else:
-                                    _n = mat_nodes["_n RotationMap"]
-                                _n.location = (-464, 0)
-                                _n.width = _n.width_hidden = 300
-                                links.new(uber_nodegroup.inputs[1],_n.outputs[0])
-                                links.new(uber_nodegroup.inputs[2],_n.outputs[1])
-                                _n.image = RotationMap_image
+                                    uber_nodegroup.inputs[1] = [0, 0.5, 0, 1]
+                                    uber_nodegroup.inputs[2] = 0.5
 
 
                                 # Add Gloss node and link it to Uber shader
@@ -230,23 +230,43 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 _s.width = _s.width_hidden = 300
                                 links.new(uber_nodegroup.inputs[3],_s.outputs[0])
                                 links.new(uber_nodegroup.inputs[4],_s.outputs[1])
-                                _s.image = GlossMap_image
+                                _s.image = glossmap_image
 
                             else:
-                                # For current version of the shader
+                                # ------------------------------------------
+                                # For modern version of the shader
 
                                 # Add Uber Shader and link it to Output node
-                                if not "ShaderNodeHeroEngine" in mat_nodes:
-                                    uber_nodegroup = mat_nodes.new('ShaderNodeHeroEngine')
-                                else:
-                                    uber_nodegroup = mat_nodes["Uber Shader"]
-
+                                uber_nodegroup = mat_nodes.new(type="ShaderNodeHeroEngine")
                                 uber_nodegroup.derived = 'UBER'
-                                uber_nodegroup.alpha_mode = mat.blend_method
-                                uber_nodegroup.alpha_test_value = mat.alpha_threshold
+                                
+                                # Adjust transparency and shadows
+                                if mat_AlphaMode == 'Test':
+                                    uber_nodegroup.alpha_mode = 'CLIP'
+                                    try:
+                                        mat.shadow_method = 'CLIP'
+                                    except:
+                                        pass
+                                    uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
+                                elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
+                                    try:
+                                        mat.shadow_method = 'BLEND'
+                                    except:
+                                        pass
+                                    mat.shadow_method = 'HASHED'
+                                    uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
+                                else:
+                                    try:
+                                        mat.shadow_method = 'OPAQUE'
+                                    except:
+                                        pass
+                                    mat.shadow_method = 'NONE'
 
+                                # Set Backface Culling
+                                uber_nodegroup.show_transparent_back = (mat_IsTwoSided == "False" and self.use_IsTwoSided_bool == True)
+                                
                                 uber_nodegroup.location = 0, 0
-                                uber_nodegroup.width = 300
+                                uber_nodegroup.width = 350  # I like to be able to see the names of the textures
                                 uber_nodegroup.width_hidden = 300
 
                                 output_node.location = 400, 0
@@ -256,16 +276,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 links.new(output_node.inputs[0],uber_nodegroup.outputs[0])
 
                                 # Set shader's texturemap nodes
+                                uber_nodegroup.diffuseMap = diffusemap_image
+                                uber_nodegroup.glossMap = glossmap_image
+                                uber_nodegroup.rotationMap = rotationmap_image
 
-                                uber_nodegroup_nodes = uber_nodegroup.node_tree.nodes
-                                uber_nodegroup_nodes["_d"].image = DiffuseMap_image
-                                uber_nodegroup_nodes["_s"].image = GlossMap_image
-                                uber_nodegroup_nodes["_n"].image = RotationMap_image
-
-
-                        elif mat_Derived == "EmissiveOnly":
-                            pass
-
+        print("Time spent = ", timeit.timeit() )
         return {"FINISHED"}
 
 

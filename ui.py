@@ -17,6 +17,7 @@ class ZGSWTOR_PT_materials_tools(bpy.types.Panel):
         self.layout.operator("zgswtor.deduplicate_nodegroups", text="Deduplicate Nodegroups")
 
 
+
 # Objects Tools sub-panel
 class ZGSWTOR_PT_objects_tools(bpy.types.Panel):
     bl_space_type = "VIEW_3D"

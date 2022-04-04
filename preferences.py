@@ -7,7 +7,7 @@ class addonPreferences(bpy.types.AddonPreferences):
         name = "'resources' path",
         description = 'Path to "resources" folder produced by a SWTOR assets extraction',
         subtype = "DIR_PATH",
-        default = "resources",
+        default = "/Volumes/RECURSOS/3D SWTOR/extracted_swtor/resources/",
         maxlen=1024
     )
  
