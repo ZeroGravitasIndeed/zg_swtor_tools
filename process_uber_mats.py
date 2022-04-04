@@ -59,7 +59,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
         # --------------------------------------------------------------
         # Check which version of the SWTOR shaders are available
         if addon_utils.check("io_scene_gr2_legacy")[1]:
-            gr2_addon_legacy = True
+            if "Uber Shader" in bpy.data.node_groups:
+                gr2_addon_legacy = True
+            else:
+                self.report({"WARNING"}, "Although the Legacy version of the 'io_scene_gr2' add-on is enabled, no Uber Shader exists yet. Please import any arbitrary .gr2 object to produce an Uber Shader template.")
+                return {"CANCELLED"}
         elif addon_utils.check("io_scene_gr2")[1]:
             gr2_addon_legacy = False
         else:
@@ -91,8 +95,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
                         if matxml_derived == "Uber" or matxml_derived == "EmissiveOnly":
 
+                            mat_nodes = mat.node_tree.nodes
+
                             if self.use_overwrite_bool == True or ( "Principled BSDF" in mat_nodes and not ( ("Uber Shader" in mat_nodes) or ("ShaderNodeHeroEngine" in mat_nodes) ) ):
-                                mat.node_tree.nodes(clear)
+                                for node in mat_nodes:
+                                    mat_nodes.remove(node)
                             else:
                                 continue  # Entirely disregard material and go for the next one
 
@@ -102,7 +109,6 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             mat.use_nodes = True  # Redundant?
                             mat.use_fake_user = False
 
-                            mat_nodes = mat.node_tree.nodes
 
                             # Read and set some basic material attributes
                             mat_AlphaMode = matxml_root.find("AlphaMode").text
@@ -204,7 +210,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
 
                                 # Add Rotation node and link it to Uber shader
-                                if matxml_derived != "EmissiveOnly"
+                                if matxml_derived != "EmissiveOnly":
                                     if not "_n RotationMap" in mat_nodes:
                                         _n = mat_nodes.new(type='ShaderNodeTexImage')
                                         _n.name = _n.label = "_n RotationMap"
