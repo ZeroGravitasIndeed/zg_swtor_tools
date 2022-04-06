@@ -63,14 +63,23 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
             self.report({"WARNING"}, "No version of the 'io_scene_gr2' add-on is enabled.")
             return {"CANCELLED"}
 
+        print()
+        print("PROCESSING OF MATERIALS STARTS HERE")
+        print()
 
         # Main loop
         for ob in selected_objects:
             if ob.type == "MESH":
 
+                print("-------------------------------")
+                print("Object:", ob.name)
+
+                
                 for mat_slot in ob.material_slots:
 
                     mat = mat_slot.material
+
+                    print("      Material: ", mat.name)
 
                     if (r"Template: " not in mat.name) and (r"default" not in mat.name) and mat.users:
 
@@ -93,7 +102,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             if (
                                 self.use_overwrite_bool == True
                                 or (matxml_derived == "Uber" and not ("Uber Shader" in mat_nodes or "ShaderNodeHeroEngine" in mat_nodes))
-                                or (matxml_derived == "EmissiveOnly" and not "Uber Shader" in mat_nodes)
+                                or (matxml_derived == "EmissiveOnly" and not "Principled Shader" in mat_nodes)
                             ):
                                 for node in mat_nodes:
                                     mat_nodes.remove(node)
