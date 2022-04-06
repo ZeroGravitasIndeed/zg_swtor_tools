@@ -7,7 +7,6 @@ A Blender Add-on with a set of miscellaneous tools to use on **Star Wars: The Ol
 The installation of the Add-on in Blender follows the usual practices:
 
 1. Download the Add-on as a zg_swtors_tool.zip file. Don't unZip it: it's used as such a .zip.
-2.
 2. In Blender, go to Edit menu > Preferences option > Add-ons tab > Install… button.
 3. Select the Add-on in the file dialog box and click on the Install Add-on button.
 4. The Add-on will appear in the Add-ons list with its checkbox un-ticked. Tick it to enable the Add-on.
