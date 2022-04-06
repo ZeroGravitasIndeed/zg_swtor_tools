@@ -6,7 +6,6 @@ import bpy
 import pathlib
 import xml.etree.ElementTree as ET
 import addon_utils
-import timeit
 
 
 class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
@@ -27,12 +26,6 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
     # ------------------------------------------------------------------
     #Define some checkbox-type properties
-
-    use_IsTwoSided_bool: bpy.props.BoolProperty(
-        name="Use 'IsTwoSided' data",
-        description="Activates Backface Culling if the .mat file's 'IsTwoSided' element contains a 'False'.\nUseful when processing locations such as player ships or buildings' interiors, as their inner floors, walls and ceilings become see-through from outside, facilitating characters and props placement",
-        default = False
-        )
     
     use_overwrite_bool: bpy.props.BoolProperty(
         name="Overwrite Uber materials",
@@ -93,11 +86,15 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
                         matxml_derived = matxml_root.find("Derived").text
 
-                        if matxml_derived == "Uber" or matxml_derived == "EmissiveOnly":
+                        if  matxml_derived == "Uber" or matxml_derived == "EmissiveOnly":
 
                             mat_nodes = mat.node_tree.nodes
 
-                            if self.use_overwrite_bool == True or ( "Principled BSDF" in mat_nodes and not ( ("Uber Shader" in mat_nodes) or ("ShaderNodeHeroEngine" in mat_nodes) ) ):
+                            if (
+                                self.use_overwrite_bool == True
+                                or (matxml_derived == "Uber" and not ("Uber Shader" in mat_nodes or "ShaderNodeHeroEngine" in mat_nodes))
+                                or (matxml_derived == "EmissiveOnly" and not "Uber Shader" in mat_nodes)
+                            ):
                                 for node in mat_nodes:
                                     mat_nodes.remove(node)
                             else:
@@ -113,7 +110,6 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             # Read and set some basic material attributes
                             mat_AlphaMode = matxml_root.find("AlphaMode").text
                             mat_AlphaTestValue = matxml_root.find("AlphaTestValue").text
-                            mat_IsTwoSided = matxml_root.find("IsTwoSided").text                        
 
                             # Add Output node to emptied material
                             # (why can't I do output_node = mat_node.new('ShaderNodeOutputMaterial') instead?)
@@ -157,7 +153,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             # ----------------------------------------------
                             # Add Uber Shader and connect texturemaps
 
-                            if gr2_addon_legacy:
+                            if gr2_addon_legacy and matxml_derived == "Uber":
                                 # ------------------------------------------
                                 # For Legacy version of the shader
 
@@ -177,7 +173,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                     mat.shadow_method = 'NONE'
 
                                 # Set Backface Culling
-                                mat.use_backface_culling = (mat_IsTwoSided == "False" and self.use_IsTwoSided_bool == True)
+                                mat.use_backface_culling = False
 
 
                                 # Add Uber Shader and link it to Output node
@@ -238,11 +234,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 links.new(uber_nodegroup.inputs[4],_s.outputs[1])
                                 _s.image = glossmap_image
 
-                            else:
+                            elif not gr2_addon_legacy and matxml_derived == "Uber":
                                 # ------------------------------------------
                                 # For modern version of the shader
 
-                                # Add Uber Shader and link it to Output node
+                                # Add Uber Shader
                                 uber_nodegroup = mat_nodes.new(type="ShaderNodeHeroEngine")
                                 uber_nodegroup.derived = 'UBER'
                                 
@@ -251,25 +247,25 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                     uber_nodegroup.alpha_mode = 'CLIP'
                                     try:
                                         mat.shadow_method = 'CLIP'
+                                        uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
                                     except:
                                         pass
-                                    uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
                                 elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
                                     try:
                                         mat.shadow_method = 'BLEND'
+                                        mat.shadow_method = 'HASHED'
+                                        uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
                                     except:
                                         pass
-                                    mat.shadow_method = 'HASHED'
-                                    uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
                                 else:
                                     try:
                                         mat.shadow_method = 'OPAQUE'
+                                        mat.shadow_method = 'NONE'
                                     except:
                                         pass
-                                    mat.shadow_method = 'NONE'
 
                                 # Set Backface Culling
-                                uber_nodegroup.show_transparent_back = (mat_IsTwoSided == "False" and self.use_IsTwoSided_bool == True)
+                                uber_nodegroup.show_transparent_back = False
                                 
                                 uber_nodegroup.location = 0, 0
                                 uber_nodegroup.width = 350  # I like to be able to see the names of the textures
@@ -286,7 +282,38 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 uber_nodegroup.glossMap = glossmap_image
                                 uber_nodegroup.rotationMap = rotationmap_image
 
-        print("Time spent = ", timeit.timeit() )
+                            elif matxml_derived == "EmissiveOnly":
+                                # ------------------------------------------
+                                # provisional glass material
+
+                                # Set some basic material attributes
+                                mat.blend_method = 'BLEND'
+                                mat.shadow_method = 'HASHED'
+                                mat.use_backface_culling = False
+
+                                # Add Principled BSDF Shader and link it to Output node
+                                principled = mat_nodes.new(type="ShaderNodeBsdfPrincipled")
+                                principled.location = (-300, 0)
+
+                                # Add Diffuse node and link it to Principled shader
+                                if not "_d DiffuseMap" in mat_nodes:
+                                    _d = mat_nodes.new(type='ShaderNodeTexImage')
+                                    _d.name = _d.label = "_d DiffuseMap"
+                                else:
+                                    _d = mat_nodes["_d DiffuseMap"]
+
+                                _d.image = diffusemap_image
+
+                                _d.location = (-800, -200)
+                                _d.width = _d.width_hidden = 300
+
+                                links = mat.node_tree.links
+                                links.new(principled.inputs[0],_d.outputs[0])
+                                links.new(principled.inputs[19],_d.outputs[0])
+                                links.new(principled.inputs[21],_d.outputs[0])
+                                links.new(output_node.inputs[0],principled.outputs[0])
+
+
         return {"FINISHED"}
 
 

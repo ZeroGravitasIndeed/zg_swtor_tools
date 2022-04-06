@@ -16,6 +16,8 @@ class ZGSWTOR_PT_materials_tools(bpy.types.Panel):
         # deduplicate nodegroups UI
         self.layout.operator("zgswtor.deduplicate_nodegroups", text="Deduplicate Nodegroups")
 
+        # Switch Backface Culling
+
 
 
 # Objects Tools sub-panel
