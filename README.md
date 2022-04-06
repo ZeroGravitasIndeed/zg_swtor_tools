@@ -1,15 +1,16 @@
 # ZeroGravitas's SWTOR Tools
-A Blender Add-on with a set of miscellaneous tools to use on Star Wars: The Old Republic MMO's assets. It will grow on features as those occur to me.
+A Blender Add-on with a set of miscellaneous tools to use on **Star Wars: The Old Republic** MMO's assets. It will grow on features as those occur to me.
 
 
 ## Installation.
 
 The installation of the Add-on in Blender follows the usual practices:
-1. Download the Add-on as a zg_swtors_tool.zip file. Don't unZip it: it's used as such a .zip.
+1 Download the Add-on as a zg_swtors_tool.zip file. Don't unZip it: it's used as such a .zip.
 2. In Blender, go to Edit menu > Preferences option > Add-ons tab > Install… button.
 3. Select the Add-on in the file dialog box and click on the Install Add-on button.
 4. The Add-on will appear in the Add-ons list with its checkbox un-ticked. Tick it to enable the Add-on.
 5. Twirl the arrow preceding the check-box to reveal some information and, most importantly, the Add-on's Preferences. Note that it asks for the path of a "resources" folder.
+
   Some of the Add-on's features depend on looking for information and game assets inside a SWTOR assets extraction (typically produced by apps such as SWTOR Slicers or EasyMYP). In the cxase of a SWTOR Slicers extraction, the "resources" folder is inside the folder set as that app's Output Folder.
   Use the folder icon to produce a file dialog box where to locate the "resources" folder, or type or copy the folder path in the filepath field.
 
