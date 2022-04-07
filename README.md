@@ -29,7 +29,7 @@ Options:
 * **Overwrite Uber Materials** (off by default): overwrites already present Uber and EmissiveOnly objects's materials, which allows for regenerating materials that might have lost texturemaps, converting Uber materials from Legacy to modern and viceversa, etc. The option appears in the Undo box at the bottom-left side of the 3D Viewport.
 * **Collect Collider Objects** (on by default): adds all objects with an "Util_collision_hidden" material to a Collection named "Collider Objects".
 
-**It needs the presence of an enabled SWTOR importer Add-on** ("io_scene_gr2") in Blender, either the latest version or the Legacy one, as it uses their Uber materials. In the case of the Legacy materials, importing any throwaway game object might be needed in order to generate the required material template if none are there.
+**It needs the presence of an enabled [SWTOR importer Add-on ("io_scene_gr2")](https://github.com/SWTOR-Slicers/Granny2-Plug-In-Blender-2.8x)** in Blender, either the latest version or the [**Legacy**](https://github.com/SWTOR-Slicers/Granny2-Plug-In-Blender-2.8x/releases/tag/v.3.0) one, as it uses their Uber materials. In the case of the Legacy materials, importing any throwaway game object might be needed in order to generate the required material template if none are there.
 
 This tool produces a simplistic glass material, Principled Shader-based, for EmissiveOnly-type materials such as those in spaceship windows, too.
 
