@@ -27,7 +27,7 @@ Processes all the Uber-type materials in a selection of objects, adding texturem
 
 Options:
 * **Overwrite Uber Materials** (off by default): overwrite already present Uber and EmissiveOnly objects's materials, which allows to convert Uber materials from Legacy to modern and viceversa. The option appears in the Undo box at the bottom-left side of the 3D Viewport.
-* **Collect Collider Objects** (on by default): adds all objects with an "Util_collision_hidden" material in a Collection named "Collider Objects".
+* **Collect Collider Objects** (on by default): adds all objects with an "Util_collision_hidden" material to a Collection named "Collider Objects".
 
 **It needs the presence of an enabled SWTOR importer Add-on** ("io_scene_gr2") in Blender, either the latest version or the Legacy one, as it uses their Uber materials. In the case of the Legacy materials, importing any throwaway game object might be needed in order to generate the required material template if none are there.
 
