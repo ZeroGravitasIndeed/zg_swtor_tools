@@ -3,6 +3,7 @@
 # https://gist.github.com/IPv6/0886731e6e98b6968cb1ffa0b8d5900e (the one used here)
 # https://meshlogic.github.io/posts/blender/scripting/eliminate-material-duplicates/
 
+
 import bpy
 
 def eliminateNG(node):

@@ -1,6 +1,7 @@
 import bpy
 import bmesh
 
+
 # Main
 
 class ZGSWTOR_OT_remove_doubles(bpy.types.Operator):
