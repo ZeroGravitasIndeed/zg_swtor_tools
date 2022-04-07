@@ -1,5 +1,5 @@
 # ZeroGravitas's SWTOR Tools
-A Blender Add-on with a miscellanea of tools to use on **Star Wars: The Old Republic** MMO's assets. It will grow on features as new ones happen to occur to me 😛. Quality of code is… petrifying. Still, it works, kindasorta.
+A Blender Add-on with a miscellanea of tools to use on **Star Wars: The Old Republic**'s game assets. It will grow on features as new ones happen to occur to me 😛. Quality of code is… petrifying. Still, it works, kindasorta.
 
 
 ## Installation
