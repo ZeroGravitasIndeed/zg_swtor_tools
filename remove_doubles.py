@@ -8,7 +8,7 @@ class ZGSWTOR_OT_remove_doubles(bpy.types.Operator):
     bl_idname = "zgswtor.remove_doubles"
     bl_label = "SWTOR Tools"
     bl_options = {'REGISTER', "UNDO"}
-    bl_description = "Removes double vertices (does a Merge by Distance\nto the vertices of selected objects using a\nthreshold of 0.0000001).\nProcesses each selected object individually.\n\nREQUIRES A SELECTION OF OBJECTS"
+    bl_description = "Removes double vertices (does a Merge by Distance\nto the vertices of selected objects using a\nthreshold of 0.0000001).\n\n• Requires a selection of objects.\n• Processes each selected object individually."
 
     # Check that there is a selection of objects (greys-out the UI button otherwise) 
     @classmethod
