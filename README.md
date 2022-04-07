@@ -1,10 +1,10 @@
 # ZeroGravitas's SWTOR Tools
-A Blender Add-on with a set of miscellaneous tools to use on **Star Wars: The Old Republic** MMO's assets. It will grow on features as those occur to me.
+A Blender Add-on with a miscellanea of tools to use on **Star Wars: The Old Republic** MMO's assets. It will grow on features as new ones happen to occur to me 😛. Quality of code is… petrifying. Still, it works, kindasorta.
 
 
 ## Installation
 
-The installation of the Add-on in Blender follows the usual practices:
+The installation of the Add-on in Blender follows the usual directions:
 
 1. Download the Add-on as a zg_swtors_tool.zip file. Don't unZip it: it's used as such .zip.
 2. In Blender, go to Edit menu > Preferences option > Add-ons tab > Install… button.
@@ -17,6 +17,8 @@ The installation of the Add-on in Blender follows the usual practices:
     Use the folder icon to produce a file dialog box where to locate the "resources" folder, or type or copy the folder path in the filepath field.
 
 The Add-on's tools will appear in the 3D Viewport's Sidebar ('n' key), in the "ZG SWTOR" tab.
+
+The current tools are:
 
 ## SWTOR Materials Tools:
 
