@@ -1,6 +1,6 @@
-# ZeroGravitas's SWTOR Tools
-A Blender Add-on with a miscellanea of tools to use on **Star Wars: The Old Republic**'s game assets. It will grow on features as new ones happen to occur to me 😛. Quality of code is… petrifying. Still, it works, kindasorta.
+# ZeroGravitas' SWTOR Tools
 
+This Blender Add-on provides with a miscellanea of tools to use on **Star Wars: The Old Republic**'s game assets. It will grow on features as new ones happen to occur to me 😛. Quality of code is… petrifying. Still, it works, kindasorta.
 
 ## Installation
 
@@ -23,7 +23,7 @@ The current tools are:
 ## SWTOR Materials Tools:
 
 ### Process Uber Materials:
-Processes all the Uber-type materials in a selection of objects, adding texturemaps and shaders (modern or legacy ones), and any EmissiveOnly-type (glass) ones.
+Processes all the Uber-type materials in a selection of objects, adding texturemaps and shaders (modern or legacy ones), and any EmissiveOnly-type (glass) ones. It's particularly fast, as it (only) works with an asset extraction's "resources" folder.
 
 Options:
 * **Overwrite Uber Materials** (off by default): overwrites already present Uber and EmissiveOnly objects's materials, which allows for regenerating materials that might have lost texturemaps, converting Uber materials from Legacy to modern and viceversa, etc. The option appears in the Undo box at the bottom-left side of the 3D Viewport.
