@@ -6,7 +6,7 @@ A Blender Add-on with a miscellanea of tools to use on **Star Wars: The Old Repu
 
 The installation of the Add-on in Blender follows the usual directions:
 
-1. Download the Add-on's "zg_swtors_tool.zip" file [**from here**](https://github.com/ZeroGravitasIndeed/zg_swtor_tools/blob/main/zg_swtor_tools.zip). Don't unZip it: it's used as such .zip.
+1. Download the Add-on's "zg_swtors_tool.zip" file [**from here**](https://github.com/ZeroGravitasIndeed/zg_swtor_tools/raw/main/zg_swtor_tools.zip). Don't unZip it: it's used as such .zip.
 2. In Blender, go to Edit menu > Preferences option > Add-ons tab > Install… button.
 3. Select the Add-on in the file dialog box and click on the Install Add-on button.
 4. The Add-on will appear in the Add-ons list with its checkbox un-ticked. Tick it to enable the Add-on.
