@@ -11,7 +11,7 @@ bl_info = {
     "category": "SWTOR",
     "location": "View 3D > Sidebar > ZG SWTOR",
     "description": "Diverse SWTOR asset-handling tools",
-    "doc_url": "",
+    "doc_url": "https://github.com/ZeroGravitasIndeed/zg_swtor_tools",
     "tracker_url": "",
 }
 

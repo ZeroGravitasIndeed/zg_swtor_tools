@@ -16,7 +16,12 @@ class ZGSWTOR_OT_remove_doubles(bpy.types.Operator):
         else:
             return False
     
-    def 
+    use_IsTwoSided_bool: bpy.props.BoolProperty(
+        name="Use 'IsTwoSided' data",
+        description="Activates Backface Culling if the .mat file's 'IsTwoSided' element contains a 'False'.\nUseful when processing locations such as player ships or buildings' interiors, as their inner floors, walls and ceilings become see-through from outside, facilitating characters and props placement",
+        default = False
+        )
+
 
     def execute(self, context):
 
@@ -26,7 +31,7 @@ class ZGSWTOR_OT_remove_doubles(bpy.types.Operator):
 
             if selected_objects:
                 for obj in selected_objects:
-                    for mat_slot in ob.material_slots:
+                    for mat_slot in obj.material_slots:
                         mat = mat_slot.material
 
 

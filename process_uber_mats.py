@@ -32,6 +32,12 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
         description='Processes the selected objects Uber materials even if they have an Uber shader already, effectively "regenerating" those ones',
         default = False )
 
+    use_collect_colliders_bool: bpy.props.BoolProperty(
+        name="Collect Collider objects",
+        description='Collects all objects with an "util_collision_hidden" material in a Collection named "Collider Objects"',
+        default = True )
+
+
     # ------------------------------------------------------------------
     def execute(self, context):
 
@@ -68,18 +74,25 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
         print()
 
         # Main loop
+
+        collider_objects = []
+        
         for ob in selected_objects:
             if ob.type == "MESH":
 
                 print("-------------------------------")
                 print("Object:", ob.name)
 
-                
+                is_collision_object = False
+
                 for mat_slot in ob.material_slots:
 
                     mat = mat_slot.material
-
                     print("      Material: ", mat.name)
+
+                    if mat.name == "util_collision_hidden":
+                        is_collision_object = True
+                        collider_objects.append(ob)
 
                     if (r"Template: " not in mat.name) and (r"default" not in mat.name) and mat.users:
 
@@ -162,9 +175,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             # ----------------------------------------------
                             # Add Uber Shader and connect texturemaps
 
+                            
+                            # ----------------------------------------------
+                            # For Legacy version of the shader
+
                             if gr2_addon_legacy and matxml_derived == "Uber":
-                                # ------------------------------------------
-                                # For Legacy version of the shader
 
                                 # Adjust transparency and shadows
                                 mat.alpha_threshold = float(mat_AlphaTestValue)
@@ -243,9 +258,9 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 links.new(uber_nodegroup.inputs[4],_s.outputs[1])
                                 _s.image = glossmap_image
 
+                            # ----------------------------------------------
+                            # For modern version of the shader
                             elif not gr2_addon_legacy and matxml_derived == "Uber":
-                                # ------------------------------------------
-                                # For modern version of the shader
 
                                 # Add Uber Shader
                                 uber_nodegroup = mat_nodes.new(type="ShaderNodeHeroEngine")
@@ -291,9 +306,9 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 uber_nodegroup.glossMap = glossmap_image
                                 uber_nodegroup.rotationMap = rotationmap_image
 
+                            # ----------------------------------------------
+                            # provisional glass material
                             elif matxml_derived == "EmissiveOnly":
-                                # ------------------------------------------
-                                # provisional glass material
 
                                 # Set some basic material attributes
                                 mat.blend_method = 'BLEND'
@@ -317,12 +332,36 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 _d.width = _d.width_hidden = 300
 
                                 links = mat.node_tree.links
-                                links.new(principled.inputs[0],_d.outputs[0])
-                                links.new(principled.inputs[19],_d.outputs[0])
-                                links.new(principled.inputs[21],_d.outputs[0])
+
+                                # Blender 2.8x
+                                if bpy.app.version < (2, 90, 0):
+                                    links.new(principled.inputs[0],_d.outputs[0])
+                                    links.new(principled.inputs[17],_d.outputs[0])
+                                # Blender 2.9x
+                                elif bpy.app.version < (3, 0, 0):
+                                    links.new(principled.inputs[0],_d.outputs[0])
+                                    links.new(principled.inputs[17],_d.outputs[0])
+                                    links.new(principled.inputs[18],_d.outputs[0])
+                                # Blender 3.x
+                                else:
+                                    links.new(principled.inputs[0],_d.outputs[0])
+                                    links.new(principled.inputs[19],_d.outputs[0])
+                                    links.new(principled.inputs[21],_d.outputs[0])
+
                                 links.new(output_node.inputs[0],principled.outputs[0])
 
+        if self.use_collect_colliders_bool and collider_objects:
+            if not "Collider Objects" in bpy.context.scene.collection.children:
+                colliders_collection = bpy.data.collections.new("Collider Objects")
+                bpy.context.scene.collection.children.link(colliders_collection)
+            else:
+                colliders_collection = bpy.data.collections["Collider Objects"]
 
+            for collider in collider_objects:
+                if not collider.name in colliders_collection.objects:
+                    colliders_collection.objects.link(collider)
+
+            
         return {"FINISHED"}
 
 
