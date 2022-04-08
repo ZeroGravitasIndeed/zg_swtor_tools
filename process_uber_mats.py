@@ -112,10 +112,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
                             mat_nodes = mat.node_tree.nodes
 
+                            # Delete Principled Shader if needed
                             if (
                                 self.use_overwrite_bool == True
                                 or (matxml_derived == "Uber" and not ("Uber Shader" in mat_nodes or "ShaderNodeHeroEngine" in mat_nodes))
-                                or (matxml_derived == "EmissiveOnly" and not "Principled Shader" in mat_nodes)
+                                or (matxml_derived == "EmissiveOnly" and not "_d DiffuseMap" in mat_nodes)
                             ):
                                 for node in mat_nodes:
                                     mat_nodes.remove(node)
@@ -133,7 +134,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             mat_AlphaMode = matxml_root.find("AlphaMode").text
                             mat_AlphaTestValue = matxml_root.find("AlphaTestValue").text
 
-                            # Add Output node to emptied material
+                            # Add Output node to emptied material as long as it's not Emissive Only
                             # (why can't I do output_node = mat_node.new('ShaderNodeOutputMaterial') instead?)
                             output_node = mat.node_tree.nodes.new('ShaderNodeOutputMaterial')
 
@@ -170,6 +171,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                         rotationmap_image = temp_image
                                     elif matxml_semantic == "GlossMap":
                                         glossmap_image = temp_image
+
 
 
                             # ----------------------------------------------
@@ -307,49 +309,76 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 uber_nodegroup.rotationMap = rotationmap_image
 
                             # ----------------------------------------------
-                            # provisional glass material
+                            # For EmissiveOnly-type material,
+                            # a provisional glass material.
+                            # Some ideas taken from here:
+                            # https://blenderbasecamp.com/how-to-make-glass-transparent-in-eevee/
+                            
                             elif matxml_derived == "EmissiveOnly":
 
-                                # Set some basic material attributes
-                                mat.blend_method = 'BLEND'
-                                mat.shadow_method = 'HASHED'
+                                # Set some Eevee settings for this style of glass
+                                bpy.data.scenes["Scene"].eevee.use_ssr_refraction = True
+
+                                # Set some basic material attributes for
+                                # this style of glass-like material
+                                mat.blend_method = 'OPAQUE'
+                                mat.shadow_method = 'NONE'
                                 mat.use_backface_culling = False
+                                mat.use_screen_refraction = True
+                                mat.refraction_depth = 0.001
 
-                                # Add Principled BSDF Shader and link it to Output node
-                                principled = mat_nodes.new(type="ShaderNodeBsdfPrincipled")
-                                principled.location = (-300, 0)
-
-                                # Add Diffuse node and link it to Principled shader
+                                # Add Principled BSDF Shader
+                                if not "Principled BSDF" in mat_nodes:
+                                    principled = mat.node_tree.nodes.new(type="ShaderNodeBsdfPrincipled")
+                                else:
+                                    principled = mat_nodes["Principled BSDF"]
+                                
+                                # Add Diffuse node
                                 if not "_d DiffuseMap" in mat_nodes:
                                     _d = mat_nodes.new(type='ShaderNodeTexImage')
                                     _d.name = _d.label = "_d DiffuseMap"
                                 else:
                                     _d = mat_nodes["_d DiffuseMap"]
-
                                 _d.image = diffusemap_image
 
+                                principled.location = (-300, 0)
+                                output_node.location = (0, 0)
                                 _d.location = (-800, -200)
                                 _d.width = _d.width_hidden = 300
 
+                                # Linking nodes and setting some Principled shader values
                                 links = mat.node_tree.links
 
+                                links.new(output_node.inputs[0], principled.outputs[0])
+                                
                                 # Blender 2.8x
                                 if bpy.app.version < (2, 90, 0):
-                                    links.new(principled.inputs[0],_d.outputs[0])
-                                    links.new(principled.inputs[17],_d.outputs[0])
+                                    principled.inputs[5].default_value   = 0.5      # Specular
+                                    principled.inputs[7].default_value   = 0.0      # Roughness
+                                    principled.inputs[14].default_value  = 1.050    # IOR
+                                    principled.inputs[15].default_value  = 0.950    # Transmission
+                                    
+                                    links.new(principled.inputs[17],_d.outputs[0])  # Emission
                                 # Blender 2.9x
                                 elif bpy.app.version < (3, 0, 0):
-                                    links.new(principled.inputs[0],_d.outputs[0])
-                                    links.new(principled.inputs[17],_d.outputs[0])
-                                    links.new(principled.inputs[18],_d.outputs[0])
+                                    principled.inputs[5].default_value   = 0.5      # Specular
+                                    principled.inputs[7].default_value   = 0.0      # Roughness
+                                    principled.inputs[14].default_value  = 1.050    # IOR
+                                    principled.inputs[15].default_value  = 0.950    # Transmission
+                                    
+                                    links.new(principled.inputs[17],_d.outputs[0])  # Emission
                                 # Blender 3.x
                                 else:
-                                    links.new(principled.inputs[0],_d.outputs[0])
-                                    links.new(principled.inputs[19],_d.outputs[0])
-                                    links.new(principled.inputs[21],_d.outputs[0])
+                                    principled.inputs[7].default_value   = 0.5      # Specular
+                                    principled.inputs[9].default_value   = 0.0      # Roughness
+                                    principled.inputs[16].default_value  = 1.050    # IOR
+                                    principled.inputs[17].default_value  = 0.950    # Transmission
+                                    
+                                    links.new(principled.inputs[19],_d.outputs[0])  # Emission
 
-                                links.new(output_node.inputs[0],principled.outputs[0])
 
+
+        # Adding collider objects to a Collection
         if self.use_collect_colliders_bool and collider_objects:
             if not "Collider Objects" in bpy.context.scene.collection.children:
                 colliders_collection = bpy.data.collections.new("Collider Objects")

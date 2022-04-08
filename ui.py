@@ -16,6 +16,12 @@ class ZGSWTOR_PT_materials_tools(bpy.types.Panel):
         # deduplicate nodegroups UI
         self.layout.operator("zgswtor.deduplicate_nodegroups", text="Deduplicate Scene's Nodegroups")
 
+        # # Shader Controls UI
+        # box = self.layout.box()
+        # box.label(text="Scene-wide Shader Controls")
+        # box.prop(context.scene, "Normals strength")
+        # box.prop(context.scene, "Emissive strength")
+
 
 
 # Objects Tools sub-panel
