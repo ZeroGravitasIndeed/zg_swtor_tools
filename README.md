@@ -25,7 +25,7 @@ The current tools are:
 ### Process Uber Materials:
 Processes all the Uber-type materials in a selection of objects, adding texturemaps and shaders (modern or legacy ones), and any EmissiveOnly-type (glass) ones. It's particularly fast, as it (only) works with an asset extraction's "resources" folder.
 
-Options:
+Redo Panel options:
 * **Overwrite Uber Materials** (off by default): overwrites already present Uber and EmissiveOnly objects's materials, which allows for regenerating materials that might have lost texturemaps, converting Uber materials from Legacy to modern and viceversa, etc. The option appears in the Undo box at the bottom-left side of the 3D Viewport.
 * **Collect Collider Objects** (on by default): adds all objects with an "Util_collision_hidden" material to a Collection named "Collider Objects".
 
