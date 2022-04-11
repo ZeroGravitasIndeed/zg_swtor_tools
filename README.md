@@ -16,7 +16,7 @@ The installation of the Add-on in Blender follows the usual directions:
 
     Some of the Add-on's features depend on looking for information and game assets inside a SWTOR assets extraction (typically produced by apps such as SWTOR Slicers or EasyMYP). In the case of a SWTOR Slicers extraction, the "resources" folder is inside the folder set as that app's Output Folder.
     
-    Use the folder icon to produce a file dialog box where to locate the "resources" folder, or type or copy the folder path in the filepath field.
+    Click on the folder icon to produce a file browser dialog window where to locate the "resources" folder, or type or copy the folder path inside the filepath field.
         
 The Add-on's tools will appear in the 3D Viewport's Sidebar ('n' key), in the "ZG SWTOR" tab.
 
