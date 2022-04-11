@@ -12,11 +12,15 @@ The installation of the Add-on in Blender follows the usual directions:
 4. The Add-on will appear in the Add-ons list with its checkbox un-ticked. Tick it to enable the Add-on.
 5. Twirl the arrow preceding the check-box to reveal some information and, most importantly, **the Add-on's Preferences**. Note that it asks for **the path of a "resources" folder**.
 
+      ![](https://github.com/ZeroGravitasIndeed/zg_swtor_tools/blob/main/documentation/010.png)
+
     Some of the Add-on's features depend on looking for information and game assets inside a SWTOR assets extraction (typically produced by apps such as SWTOR Slicers or EasyMYP). In the case of a SWTOR Slicers extraction, the "resources" folder is inside the folder set as that app's Output Folder.
     
     Use the folder icon to produce a file dialog box where to locate the "resources" folder, or type or copy the folder path in the filepath field.
-
+        
 The Add-on's tools will appear in the 3D Viewport's Sidebar ('n' key), in the "ZG SWTOR" tab.
+
+![](https://github.com/ZeroGravitasIndeed/zg_swtor_tools/blob/main/documentation/020.png)
 
 The current tools are:
 
