@@ -46,10 +46,12 @@ Consolidates all duplicates of a node in the scene ("node.001", "node.002", etc.
 ### Set Backface Culling On/Off:
 It sets all the materials in the selected objects' Backface Culling setting to on or off (the setting is fully reversible). Many SWTOR objects, especially floors, walls, and ceilings of spaceships and some buildings, are single-sided by nature, which ought to make their sides facing away from the camera invisible. Blender, by default, renders single-sided objects as double-sided unless Backface Culling is enabled.
 * It **doesn't** depend on the presence of a .gr2 importer add-on: this setting works in any kind of Blender material, no matter if SWTOR-based or any other kind.
+* **The setting only acts through the Eevee renderer** (either while in Viewport Shading mode or as a final renderer). Cycles enforces double-sidedness, despite ticking the Material Properties Inspector's Backface Culling checkbox. If the intention is to do the final render through Cycles, a dual 3D Viewer setup, one in Material Preview mode (Eevee) and the other displaying the Render Preview might be the best way to finetune lighting and texturing. 
 
 The usefulness of this tool becomes apparent when having to deal with interior scenes such as spaceship rooms, where we have to place models (characters, furniture, props.) while having the walls and ceilings occluding our view. There are cumbersome solutions to that, such as hiding polygons, playing with the camera clipping settings, or using a booleaning object to "eat" walls or ceilings away. This is simpler and faster. Also, it doesn't affect the rendering when placing the camera inside, as there the one-sided objects are facing the camera in the intended manner.
 
 ![](https://github.com/ZeroGravitasIndeed/zg_swtor_tools/blob/main/documentation/030.jpg)
+
 
 **Warning: if a selected object's material is shared with objects that haven't been selected (and that's very typical in architectural objects like spaceships or buildings), the effect will be visible in those objects, too.** This is normal, and maybe inconvenient. The only solution to this would be to isolate the material we don't want to be affected by changing its name. Still, for the intended use, it doesn't seem to be anything beyond a nuisance.
 
