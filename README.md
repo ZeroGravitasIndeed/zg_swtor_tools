@@ -45,6 +45,7 @@ Consolidates all duplicates of a node in the scene ("node.001", "node.002", etc.
 
 ### Set Backface Culling On/Off:
 It sets all the materials in the selected objects' Backface Culling setting to on or off (the setting is fully reversible). Many SWTOR objects, especially floors, walls, and ceilings of spaceships and some buildings, are single-sided by nature, which ought to make their sides facing away from the camera invisible. Blender, by default, renders single-sided objects as double-sided unless Backface Culling is enabled.
+* It **doesn't** depend on the presence of a .gr2 importer add-on: this setting works in any kind of Blender material, no matter if SWTOR-based or any other kind.
 
 The usefulness of this tool becomes apparent when having to deal with interior scenes such as spaceship rooms, where we have to place models (characters, furniture, props.) while having the walls and ceilings occluding our view. There are cumbersome solutions to that, such as hiding polygons, playing with the camera clipping settings or using a booleaning object to "eat" walls or ceilings away. This is simpler and faster. Also, it doesn't affect the rendering when placing the camera inside, as there the one-sided objects are facing the camera in the intended manner.
 
