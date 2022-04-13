@@ -12,15 +12,28 @@ class ZGSWTOR_PT_materials_tools(bpy.types.Panel):
 
         # process_uber_mats UI
         self.layout.operator("zgswtor.process_uber_mats", text="Process Uber Materials")
+        self.layout.prop(context.scene, "use_overwrite_bool")
 
-        # deduplicate nodegroups UI
-        self.layout.operator("zgswtor.deduplicate_nodegroups", text="Deduplicate Scene's Nodegroups")
+
+        # deduplicate_nodegroups UI
+        self.layout.operator("zgswtor.deduplicate_nodegroups", text="Deduplicate All Nodegroups")
+
+
+        # set_backface_culling UI
+        row = self.layout.row(align=True)
+        row.operator("zgswtor.set_backface_culling", text="Set Backface Culling On").action="BACKFACE_CULLING_ON"
+        
+        sub_row = row.row()  # for setting a non-50% contiguous row region
+        sub_row.scale_x = 0.35
+        sub_row.operator("zgswtor.set_backface_culling", text="Off").action="BACKFACE_CULLING_OFF"
+
+
 
         # # Shader Controls UI
         # box = self.layout.box()
-        # box.label(text="Scene-wide Shader Controls")
-        # box.prop(context.scene, "Normals strength")
-        # box.prop(context.scene, "Emissive strength")
+        # box.label(text="Scene-Wide Shader Controls")
+        # box.prop(bpy.data.node_groups["SWTOR"].nodes["Normal Map"].inputs[0].default_value, "Normals strength")
+        # # box.prop(context.scene, "Emissive strength")
 
 
 

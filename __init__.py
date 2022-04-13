@@ -24,7 +24,8 @@ modulesNames = [
     'preferences',
     'process_uber_mats',
     'remove_doubles',
-    'deduplicate_nodegroups'
+    'deduplicate_nodegroups',
+    'set_backface_culling',
     ]
   
 modulesFullNames = {}

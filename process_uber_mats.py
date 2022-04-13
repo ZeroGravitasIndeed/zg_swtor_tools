@@ -30,12 +30,20 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
     use_overwrite_bool: bpy.props.BoolProperty(
         name="Overwrite Uber materials",
         description='Processes the selected objects Uber materials even if they have an Uber shader already, effectively "regenerating" those ones',
-        default = False )
+        default = False
+        )
 
     use_collect_colliders_bool: bpy.props.BoolProperty(
         name="Collect Collider objects",
         description='Collects all objects with an "util_collision_hidden" material in a Collection named "Collider Objects"',
-        default = True )
+        default = True
+        )
+
+    # use_IsTwoSided_bool: bpy.props.BoolProperty(
+    #     name="Use 'IsTwoSided' data",
+    #     description="Activates Backface Culling if the .mat file's 'IsTwoSided' element contains a 'False'.\nUseful when processing locations such as player ships or buildings' interiors, as their inner floors, walls and ceilings become see-through from outside, facilitating characters and props placement",
+    #     default = False
+    #     )
 
 
     # ------------------------------------------------------------------
