@@ -43,6 +43,7 @@ class ZGSWTOR_OT_set_backface_culling(bpy.types.Operator):
         
         if selected_objects:
             
+            print(selected_objects)
             mats = []
             
             for obj in selected_objects:

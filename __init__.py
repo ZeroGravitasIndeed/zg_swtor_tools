@@ -26,6 +26,7 @@ modulesNames = [
     'remove_doubles',
     'deduplicate_nodegroups',
     'set_backface_culling',
+    'upscale_downscale'
     ]
   
 modulesFullNames = {}
@@ -53,4 +54,4 @@ def unregister():
                 sys.modules[currentModuleName].unregister()
  
 if __name__ == "__main__":
-    register()
+    register()#

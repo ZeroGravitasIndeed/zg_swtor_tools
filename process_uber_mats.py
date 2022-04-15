@@ -16,7 +16,8 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     # ------------------------------------------------------------------
-    # Check that there is a selection of objects (greys-out the UI button otherwise) 
+    # Check that there is a selection of objects (greys-out the UI button otherwise)
+    
     @classmethod
     def poll(cls,context):
         if bpy.context.selected_objects:
@@ -39,11 +40,6 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
         default = True
         )
 
-    # use_IsTwoSided_bool: bpy.props.BoolProperty(
-    #     name="Use 'IsTwoSided' data",
-    #     description="Activates Backface Culling if the .mat file's 'IsTwoSided' element contains a 'False'.\nUseful when processing locations such as player ships or buildings' interiors, as their inner floors, walls and ceilings become see-through from outside, facilitating characters and props placement",
-    #     default = False
-    #     )
 
 
     # ------------------------------------------------------------------
