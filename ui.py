@@ -1,4 +1,6 @@
 import bpy
+import zg_swtor_tools
+
 
 
 # Materials Tools sub-panel
@@ -41,13 +43,16 @@ class ZGSWTOR_PT_objects_tools(bpy.types.Panel):
         # remove_doubles UI
         layout.operator("zgswtor.remove_doubles", text="Merge Double Vertices")
 
-        # upscale_downscale UI
+        # quickscale UI
         row = layout.row(align=True)
-        row.operator("zgswtor.upscale_downscale", text="Downscale").action="DOWNSCALE"
-        # in_row = row.row()
-        # in_row.scale_x = 0.35
-        # in_row.prop("zgswtor.upscale_downscale", "manual_scaling_factor", text="Fac")
-        row.operator("zgswtor.upscale_downscale", text="Upscale").action="UPSCALE"
+
+        row.operator("zgswtor.quickscale", text="Downscale").action="DOWNSCALE"
+
+        in_row = row.row()  # for a non-50% contiguous row region
+        in_row.scale_x = 0.9
+        in_row.prop(context.scene, "zgswtor_quickscale_factor", text="")
+
+        row.operator("zgswtor.quickscale", text="Upscale").action="UPSCALE"
 
 
 
@@ -65,7 +70,7 @@ class ZGSWTOR_PT_scene_tools(bpy.types.Panel):
         # Simplify (copy of existing operators)
         row = layout.row(align=True)
         row.prop(context.scene.render, "use_simplify", text=" Simplify")
-        in_row = row.row()  # for setting a non-50% contiguous row region
+        in_row = row.row()  # for a non-50% contiguous row region
         in_row.scale_x = 1.2
         in_row.prop(context.scene.render, "simplify_subdivision", text="Max SubD")
 
@@ -86,5 +91,6 @@ def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
+    
 if __name__ == "__main__":
     register()
