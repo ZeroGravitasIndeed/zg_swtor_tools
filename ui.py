@@ -1,5 +1,5 @@
+from email.policy import default
 import bpy
-import zg_swtor_tools
 
 
 
@@ -14,14 +14,20 @@ class ZGSWTOR_PT_materials_tools(bpy.types.Panel):
         layout = self.layout
         
         # process_uber_mats UI
-        layout.operator("zgswtor.process_uber_mats", text="Process Uber Materials")
+        tool_section = layout.box().column(align=True)
+        tool_section.operator("zgswtor.process_uber_mats", text="Process Uber Materials")
+        tool_section.prop(context.scene, "use_overwrite_bool", text="Overwrite Uber Materials")
+        tool_section.prop(context.scene, "use_collect_colliders_bool", text="Collect Collider Objects")
+
 
         # deduplicate_nodegroups UI
-        layout.operator("zgswtor.deduplicate_nodegroups", text="Deduplicate All Nodegroups")
+        tool_section = layout.box()
+        tool_section.operator("zgswtor.deduplicate_nodegroups", text="Deduplicate All Nodegroups")
 
 
         # set_backface_culling UI
-        row = layout.row(align=True)
+        tool_section = layout.box()
+        row = tool_section.row(align=True)
         row.operator("zgswtor.set_backface_culling", text="Set Backface Culling On").action="BACKFACE_CULLING_ON"
         
         in_row = row.row()  # for setting a non-50% contiguous row region
@@ -41,17 +47,16 @@ class ZGSWTOR_PT_objects_tools(bpy.types.Panel):
         layout = self.layout
         
         # remove_doubles UI
-        layout.operator("zgswtor.remove_doubles", text="Merge Double Vertices")
+        tool_section = layout.box()
+        tool_section.operator("zgswtor.remove_doubles", text="Merge Double Vertices")
 
         # quickscale UI
-        row = layout.row(align=True)
-
+        tool_section = layout.box()
+        row = tool_section.row(align=True)
         row.operator("zgswtor.quickscale", text="Downscale").action="DOWNSCALE"
-
         in_row = row.row()  # for a non-50% contiguous row region
         in_row.scale_x = 0.9
         in_row.prop(context.scene, "zgswtor_quickscale_factor", text="")
-
         row.operator("zgswtor.quickscale", text="Upscale").action="UPSCALE"
 
 
@@ -68,7 +73,8 @@ class ZGSWTOR_PT_scene_tools(bpy.types.Panel):
         layout = self.layout
 
         # Simplify (copy of existing operators)
-        row = layout.row(align=True)
+        tool_section = layout.box()
+        row = tool_section.row(align=True)
         row.prop(context.scene.render, "use_simplify", text=" Simplify")
         in_row = row.row()  # for a non-50% contiguous row region
         in_row.scale_x = 1.2

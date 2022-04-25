@@ -79,6 +79,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
         # Main loop
 
+        already_processed_mats = []
         collider_objects = []
         
         for ob in selected_objects:
@@ -98,7 +99,12 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                         is_collision_object = True
                         collider_objects.append(ob)
 
-                    if (r"Template: " not in mat.name) and (r"default" not in mat.name) and mat.users:
+                    if (
+                        (r"Template: " not in mat.name)
+                        and (r"default" not in mat.name)
+                        and mat.users
+                        and mat.name not in already_processed_mats
+                    ):
 
                         # By looking for the material in the shaders folder we'll inherently
                         # filter out recolorable materials such as skin, eyes or armor already,
@@ -139,7 +145,6 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             mat_AlphaTestValue = matxml_root.find("AlphaTestValue").text
 
                             # Add Output node to emptied material as long as it's not Emissive Only
-                            # (why can't I do output_node = mat_node.new('ShaderNodeOutputMaterial') instead?)
                             output_node = mat.node_tree.nodes.new('ShaderNodeOutputMaterial')
 
 
@@ -176,6 +181,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                     elif matxml_semantic == "GlossMap":
                                         glossmap_image = temp_image
 
+                                    # Collision Object check at the texturemap level
+                                    if  "util_collision_hidden" in matxml_value and is_collision_object == False:
+                                        is_collision_object = True
+                                        collider_objects.append(ob)
+
 
 
                             # ----------------------------------------------
@@ -183,7 +193,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 
                             
                             # ----------------------------------------------
-                            # For Legacy version of the shader
+                            #   For Legacy version of the shader
 
                             if gr2_addon_legacy and matxml_derived == "Uber":
 
@@ -265,7 +275,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 _s.image = glossmap_image
 
                             # ----------------------------------------------
-                            # For modern version of the shader
+                            #   For modern version of the shader
                             elif not gr2_addon_legacy and matxml_derived == "Uber":
 
                                 # Add Uber Shader
@@ -273,26 +283,30 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                 uber_nodegroup.derived = 'UBER'
                                 
                                 # Adjust transparency and shadows
+                                mat.alpha_threshold = float(mat_AlphaTestValue)
+                                
                                 if mat_AlphaMode == 'Test':
+                                    mat.blend_method = 'CLIP'
+                                    mat.shadow_method = 'CLIP'
                                     uber_nodegroup.alpha_mode = 'CLIP'
                                     try:
-                                        mat.shadow_method = 'CLIP'
                                         uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
                                     except:
                                         pass
                                 elif mat_AlphaMode == 'Full' or mat_AlphaMode == 'MultipassFull' or mat_AlphaMode == 'Add':
+                                    mat_AlphaMode == 'Blend'
+                                    mat.blend_method = 'BLEND'
+                                    mat.shadow_method = 'HASHED'
                                     try:
-                                        mat.shadow_method = 'BLEND'
-                                        mat.shadow_method = 'HASHED'
                                         uber_nodegroup.alpha_test_value = float(mat_AlphaTestValue)
                                     except:
                                         pass
                                 else:
-                                    try:
-                                        mat.shadow_method = 'OPAQUE'
-                                        mat.shadow_method = 'NONE'
-                                    except:
-                                        pass
+                                    mat_AlphaMode == 'None'
+                                    mat.blend_method = 'OPAQUE'
+                                    mat.shadow_method = 'NONE'
+
+
 
                                 # Set Backface Culling
                                 uber_nodegroup.show_transparent_back = False
@@ -380,6 +394,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                                     
                                     links.new(principled.inputs[19],_d.outputs[0])  # Emission
 
+                        already_processed_mats.append(mat.name)
 
 
         # Adding collider objects to a Collection
@@ -405,6 +420,14 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
 # Registrations
 
 def register():
+    bpy.types.Scene.use_overwrite_bool = bpy.props.BoolProperty(
+        description="Rewrites already existing Uber and EmissiveOnly materials.\nThis allows for converting Legacy Uber materials\nto modern ones and viceversa.",
+        default=False
+    )
+    bpy.types.Scene.use_collect_colliders_bool = bpy.props.BoolProperty(
+        description='Creates or uses a "Collider Objects" Collection and adds to it\nany object with an "util_collision_hidden" type of material\nto facilitate its management and / or deletion',
+        default=True
+    )
     bpy.utils.register_class(ZGSWTOR_OT_process_uber_mats)
 
 def unregister():

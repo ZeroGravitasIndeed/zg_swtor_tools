@@ -4,7 +4,7 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
     bl_idname = "zgswtor.quickscale"
     bl_label = "SWTOR Tools"
     bl_options = {'REGISTER', "UNDO"}
-    bl_description = "Scales selected objects of a SWTOR models-based scene\nto facilitate Blender operations that require real life-like sizes\n(e.g., auto-weight painting, physics, etc.)"
+    bl_description = "Quickscaler:\nResizes objects preserving their relative distances to facilitate\noperations that require real life-like sizes (e.g., auto-weight painting).\n\n• Requires a selection of objects.\n• Affects Dimension data instead of scale"
 
     # Check that there is a selection of objects (greys-out the UI button otherwise) 
     @classmethod
@@ -25,25 +25,25 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
         items=[
             ("UPSCALE", "Upscale", "Upscale"),
             ("DOWNSCALE", "Downscale", "Downscale")
-            ]
+            ],
+        options={'HIDDEN'}
         )
 
     quickscale_factor : bpy.props.FloatProperty(
         name = "Quickscaling Factor",
         description = 'Upscaling/Downscaling factor for temporarily or permanently upsizing\nSWTOR models and others to "real life" dimensions that Blender handles better\nin certain calculations (e.g., auto-weight painting, physics, etc.)',
+        min = 1.0,
+        max = 100.0,
+        soft_min = 7.0,
+        soft_max = 10.0,
+        step = 5,
+        precision = 2,
         default = 1.0,
-        min=0.01,
-        soft_min=1,
-        max=100,
-        soft_max=10
+        options={'HIDDEN'}
         )
 
 
     # METHODS
-
-    @staticmethod  # Get the upscaling factor from the add-on's preferences.
-    def get_prefs(self,context):
-        return bpy.context.preferences.addons[__package__].preferences.quickscale_factor
 
     # Methods doing the actual scaling    
     @staticmethod
@@ -67,10 +67,8 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
         # Scales both sizes and positions in respect to the origin so that
         # the whole scene's object spacing is correctly preserved.
 
-        scaling_factor_prefs = self.get_prefs
-
-        if self.quickscale_factor == None:
-            self.quickscale_factor = scaling_factor_prefs
+        if self.quickscale_factor == 1.0:
+            self.quickscale_factor = bpy.context.preferences.addons[__package__].preferences.swtor_quickscale_factor # Get the upscaling factor from the add-on's preferences.
 
         if self.quickscale_factor != context.scene.zgswtor_quickscale_factor:
             self.quickscale_factor = context.scene.zgswtor_quickscale_factor
@@ -91,7 +89,9 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
 # Registrations
 
 def register():
-    bpy.types.Scene.zgswtor_quickscale_factor = bpy.props.FloatProperty()
+    bpy.types.Scene.zgswtor_quickscale_factor = bpy.props.FloatProperty(name="",
+        description="Scaling Factor. Recommended values are:\n\n- 10 for simplicity (characters look superhero-like tall, over 2 m.).\n\n- Around 8 for accuracy (characters show more realistic heights)"
+    )
     bpy.utils.register_class(ZGSWTOR_OT_quickscale)
 
 def unregister():
