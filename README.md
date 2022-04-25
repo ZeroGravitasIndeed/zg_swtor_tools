@@ -10,6 +10,9 @@ This Blender Add-on provides with a miscellanea of tools to use on **Star Wars: 
 * [Objects Tools:](#swtor-objects-tools)
   * [Merge Double Vertices.](#merge-double-vertices)
 * [Misc. Tools:](#swtor-misc-tools)
+  * [Simplify Scene.](#simplify)
+  * [Switch Skeleton between Pose and Rest Position.](#pose-position--rest-position)
+
 
 ## Installation.
 
