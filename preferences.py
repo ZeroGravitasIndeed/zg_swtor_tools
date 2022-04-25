@@ -16,7 +16,6 @@ class addonPreferences(bpy.types.AddonPreferences):
     )
 
     # quickscale factor
-    defaultval=5.0
     swtor_quickscale_factor: bpy.props.FloatProperty(
         name = "SWTOR Quickscale",
         description = 'Upscaling/Downscaling factor for temporarily or permanently upsizing\nSWTOR models and others to "real life" dimensions that Blender handles better\nin certain calculations (e.g., auto-weight painting, physics, etc.)',
@@ -27,7 +26,7 @@ class addonPreferences(bpy.types.AddonPreferences):
         soft_max = 10.0,
         step = 3,
         precision = 2,
-        default = defaultval
+        default = 10.0
     )
 
     # UI ----------------------------------------

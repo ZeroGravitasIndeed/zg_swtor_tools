@@ -53,11 +53,11 @@ class ZGSWTOR_PT_objects_tools(bpy.types.Panel):
         # quickscale UI
         tool_section = layout.box()
         row = tool_section.row(align=True)
-        row.operator("zgswtor.quickscale", text="Downscale").action="DOWNSCALE"
+        row.operator("zgswtor.quickscale", text="Upscale").action="UPSCALE"
         in_row = row.row()  # for a non-50% contiguous row region
         in_row.scale_x = 0.9
         in_row.prop(context.scene, "zgswtor_quickscale_factor", text="")
-        row.operator("zgswtor.quickscale", text="Upscale").action="UPSCALE"
+        row.operator("zgswtor.quickscale", text="Downscale").action="DOWNSCALE"
 
 
 
@@ -67,7 +67,7 @@ class ZGSWTOR_PT_scene_tools(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "ZG SWTOR"
-    bl_label = "SWTOR Scene Tools"
+    bl_label = "SWTOR Misc. Tools"
 
     def draw(self, context):
         layout = self.layout
@@ -79,6 +79,14 @@ class ZGSWTOR_PT_scene_tools(bpy.types.Panel):
         in_row = row.row()  # for a non-50% contiguous row region
         in_row.scale_x = 1.2
         in_row.prop(context.scene.render, "simplify_subdivision", text="Max SubD")
+
+        # Pose Position / Reset Position (copy of existing operators)
+        tool_section = layout.box()
+        row = tool_section.row(align=True)
+        row.prop(context.object.data, "pose_position", expand=True)
+        if context.object.type != "ARMATURE":
+            row.label(text="Pose / Rest Active Armeture")
+
 
         
 # Registrations

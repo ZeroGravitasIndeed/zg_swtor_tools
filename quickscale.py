@@ -1,3 +1,4 @@
+from email.policy import default
 import bpy
 
 class ZGSWTOR_OT_quickscale(bpy.types.Operator):
@@ -38,7 +39,7 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
         soft_max = 10.0,
         step = 5,
         precision = 2,
-        default = 1.0,
+        default = -1.0,
         options={'HIDDEN'}
         )
 
@@ -58,8 +59,8 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
             obj.scale /= factor
             obj.location /= factor
 
+
     
-    # EXECUTE METHOD
     
     def execute(self, context):
 
@@ -67,11 +68,10 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
         # Scales both sizes and positions in respect to the origin so that
         # the whole scene's object spacing is correctly preserved.
 
-        if self.quickscale_factor == 1.0:
-            self.quickscale_factor = bpy.context.preferences.addons[__package__].preferences.swtor_quickscale_factor # Get the upscaling factor from the add-on's preferences.
+        quickscale_factor_pref = bpy.context.preferences.addons[__package__].preferences.swtor_quickscale_factor
 
-        if self.quickscale_factor != context.scene.zgswtor_quickscale_factor:
-            self.quickscale_factor = context.scene.zgswtor_quickscale_factor
+        if self.quickscale_factor == -1.0:  # Get the upscaling factor from the add-on's preferences.
+            self.quickscale_factor = quickscale_factor_pref
 
         selected_objects = [obj for obj in bpy.context.selected_objects if not obj.parent]
 
@@ -89,8 +89,10 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
 # Registrations
 
 def register():
-    bpy.types.Scene.zgswtor_quickscale_factor = bpy.props.FloatProperty(name="",
-        description="Scaling Factor. Recommended values are:\n\n- 10 for simplicity (characters look superhero-like tall, over 2 m.).\n\n- Around 8 for accuracy (characters show more realistic heights)"
+    bpy.types.Scene.zgswtor_quickscale_factor = bpy.props.FloatProperty(
+        name="",
+        description="Scaling Factor. Recommended values are:\n\n- 10 for simplicity (characters look superhero-like tall, over 2 m.).\n\n- Around 8 for accuracy (characters show more realistic heights)",
+        default=bpy.context.preferences.addons[__package__].preferences.swtor_quickscale_factor
     )
     bpy.utils.register_class(ZGSWTOR_OT_quickscale)
 
