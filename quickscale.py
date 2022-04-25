@@ -5,7 +5,7 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
     bl_idname = "zgswtor.quickscale"
     bl_label = "SWTOR Tools"
     bl_options = {'REGISTER', "UNDO"}
-    bl_description = "Quickscaler:\nResizes objects preserving their relative distances to facilitate\noperations that require real life-like sizes (e.g., auto-weight painting).\n\n• Requires a selection of objects.\n• Affects Dimension data instead of scale"
+    bl_description = "Quickscaler:\nResizes objects preserving their relative distances to facilitate\noperations that require real life-like sizes (e.g., auto-weight painting).\n\n• Requires a selection of objects"
 
     # Check that there is a selection of objects (greys-out the UI button otherwise) 
     @classmethod
