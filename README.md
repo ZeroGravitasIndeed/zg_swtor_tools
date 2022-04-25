@@ -9,6 +9,7 @@ This Blender Add-on provides with a miscellanea of tools to use on **Star Wars: 
   * [Set Backface Culling On/Off.](#set-backface-culling-onoff)
 * [Objects Tools:](#swtor-objects-tools)
   * [Merge Double Vertices.](#merge-double-vertices)
+* [Misc. Tools:](#swtor-misc-tools)
 
 ## Installation.
 
@@ -37,7 +38,7 @@ The current tools are:
 ### Process Uber Materials.
 Processes all the Uber-type materials detected in a selection of objects, locating their related texturemaps and linking them to a SWTOR Uber shader (modern or legacy, whichever are active). It processes any EmissiveOnly-type (glass) materials, too. It's particularly fast, as it (only) works with an asset extraction's "resources" folder.
 
-Redo Panel options:
+Options:
 * **Overwrite Uber Materials** (off by default): overwrites already present Uber and EmissiveOnly objects's materials, which allows for regenerating materials that might have lost texturemaps, converting Uber materials from Legacy to modern and viceversa, etc. The option appears in the Undo box at the bottom-left side of the 3D Viewport.
 * **Collect Collider Objects** (on by default): adds all objects with an "Util_collision_hidden" material to a Collection named "Collider Objects".
 
@@ -69,3 +70,19 @@ The usefulness of this tool becomes apparent when having to deal with interior s
 Merges "duplicate" vertices (applies a "Merge By Distance" with a tolerance of 0.000001 m.), which usually solves many issues when fusing body parts or applying Subdivision or Multiresolution Modifiers.
 * Requires a selection of one or several game objects.
 * When selecting multiple objects, the tool acts on each of them separately so as not to merge vertices of different objects by accident.
+
+### Quickscaler.
+Scales all selected objects up or down by a factor, preserving their relative distances if their origins don't match. The idea behind the tool is to be able to quickly upscale all objects of a character or a scene to real life-like sizes (1 Blender unit = 1 m. or equivalent), as Blender requires such sizes to successfully calculate things like automatic weightmaps, physics, etc. Cameras, lights and armatures are correctly scaled, and it acts only on non-parented and parent objects, to avoid double-scaling children objects.
+
+Any number between 1 and 100 can be manually entered. Recommended factors are:
+* 10, for simplicity. It results in rather superheroically-sized characters.
+* Around 7-8 for more realistic human heights.
+
+## SWTOR Misc. Tools:
+For now these are simply a few already existing Blender tools that are a little too buried inside their panels and would be nice to have more at hand.
+
+### Simplify.
+Usually in the Properties Editor > Render Properties >Simplify section, it lets us temporarily switch a few common and somewhat costly options, such as Subdivision Modifiers' levels, number of particles, etc., to lower values, at the scene level. For example, we can disable subdivision while animating a character, which will make its meshes react to our posing far faster.
+
+### Pose Position / Rest Position
+It shows the Pose Position and Rest Position buttons that appear at the Properties Editor > Object Properties, Skeleton section when a skeleton is selected, letting us quickly alternate between those two states. It only acts on the Active armature (the Active Object that happens to be an armature at the moment) instead of all selected armatures. Having it act on all of them is in the works.
