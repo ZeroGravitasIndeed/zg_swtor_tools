@@ -32,14 +32,14 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
 
     quickscale_factor : bpy.props.FloatProperty(
         name = "Quickscaling Factor",
-        description = 'Upscaling/Downscaling factor for temporarily or permanently upsizing\nSWTOR models and others to "real life" dimensions that Blender handles better\nin certain calculations (e.g., auto-weight painting, physics, etc.)',
+        description = 'Scaling Factor. Recommended values are:\n\n- 10 for simplicity (characters look superhero-like tall, over 2 m.).\n\n- Around 8 for accuracy (characters show more realistic heights)',
         min = 1.0,
         max = 100.0,
         soft_min = 7.0,
         soft_max = 10.0,
-        step = 5,
+        step = 25,
         precision = 2,
-        default = -1.0,
+        default = 10,
         options={'HIDDEN'}
         )
 
@@ -68,10 +68,7 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
         # Scales both sizes and positions in respect to the origin so that
         # the whole scene's object spacing is correctly preserved.
 
-        quickscale_factor_pref = bpy.context.preferences.addons[__package__].preferences.swtor_quickscale_factor
-
-        if self.quickscale_factor == -1.0:  # Get the upscaling factor from the add-on's preferences.
-            self.quickscale_factor = quickscale_factor_pref
+        self.quickscale_factor = bpy.context.scene.zgswtor_quickscale_factor
 
         selected_objects = [obj for obj in bpy.context.selected_objects if not obj.parent]
 
@@ -92,7 +89,13 @@ def register():
     bpy.types.Scene.zgswtor_quickscale_factor = bpy.props.FloatProperty(
         name="",
         description="Scaling Factor. Recommended values are:\n\n- 10 for simplicity (characters look superhero-like tall, over 2 m.).\n\n- Around 8 for accuracy (characters show more realistic heights)",
-        default=bpy.context.preferences.addons[__package__].preferences.swtor_quickscale_factor
+        min = 1.0,
+        max = 100.0,
+        soft_min = 7.0,
+        soft_max = 10.0,
+        step = 25,
+        precision = 2,
+        default = 10,
     )
     bpy.utils.register_class(ZGSWTOR_OT_quickscale)
 

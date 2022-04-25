@@ -83,9 +83,13 @@ class ZGSWTOR_PT_scene_tools(bpy.types.Panel):
         # Pose Position / Reset Position (copy of existing operators)
         tool_section = layout.box()
         row = tool_section.row(align=True)
-        row.prop(context.object.data, "pose_position", expand=True)
-        if context.object.type != "ARMATURE":
-            row.label(text="Pose / Rest Active Armeture")
+        if context.object:
+            if context.object.type == "ARMATURE":
+                row.prop(context.object.data, "pose_position", expand=True)
+            else:
+                row.label(text="POSE / REST an Active Armature")
+        else:
+            row.label(text="POSE / REST an Active Armature")
 
 
         

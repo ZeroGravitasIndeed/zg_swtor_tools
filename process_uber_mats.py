@@ -31,19 +31,27 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
     use_overwrite_bool: bpy.props.BoolProperty(
         name="Overwrite Uber materials",
         description='Processes the selected objects Uber materials even if they have an Uber shader already, effectively "regenerating" those ones',
-        default = False
+        default = False,
+        options={'HIDDEN'}
         )
 
     use_collect_colliders_bool: bpy.props.BoolProperty(
         name="Collect Collider objects",
         description='Collects all objects with an "util_collision_hidden" material in a Collection named "Collider Objects"',
-        default = True
+        default = True,
+        options={'HIDDEN'}
         )
 
 
 
     # ------------------------------------------------------------------
     def execute(self, context):
+
+        if self.use_collect_colliders_bool != bpy.context.scene.use_collect_colliders_bool:
+            self.use_collect_colliders_bool = bpy.context.scene.use_collect_colliders_bool
+
+        if self.use_overwrite_bool != bpy.context.scene.use_overwrite_bool:
+            self.use_overwrite_bool = bpy.context.scene.use_overwrite_bool
 
         selected_objects = bpy.context.selected_objects
         if not selected_objects:
@@ -125,7 +133,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                             # Delete Principled Shader if needed
                             if (
                                 self.use_overwrite_bool == True
-                                or (matxml_derived == "Uber" and not ("Uber Shader" in mat_nodes or "ShaderNodeHeroEngine" in mat_nodes))
+                                or (matxml_derived == "Uber" and not ("Uber Shader" in mat_nodes or "SWTOR" in mat_nodes))
                                 or (matxml_derived == "EmissiveOnly" and not "_d DiffuseMap" in mat_nodes)
                             ):
                                 for node in mat_nodes:
@@ -431,6 +439,9 @@ def register():
     bpy.utils.register_class(ZGSWTOR_OT_process_uber_mats)
 
 def unregister():
+    del bpy.types.Scene.use_overwrite_bool
+    del bpy.types.Scene.use_collect_colliders_bool
+    
     bpy.utils.unregister_class(ZGSWTOR_OT_process_uber_mats)
 
 if __name__ == "__main__":

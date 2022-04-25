@@ -15,19 +15,6 @@ class addonPreferences(bpy.types.AddonPreferences):
         maxlen = 1024
     )
 
-    # quickscale factor
-    swtor_quickscale_factor: bpy.props.FloatProperty(
-        name = "SWTOR Quickscale",
-        description = 'Upscaling/Downscaling factor for temporarily or permanently upsizing\nSWTOR models and others to "real life" dimensions that Blender handles better\nin certain calculations (e.g., auto-weight painting, physics, etc.)',
-        subtype="FACTOR",
-        min = 1.0,
-        max = 100.0,
-        soft_min = 7.0,
-        soft_max = 10.0,
-        step = 3,
-        precision = 2,
-        default = 10.0
-    )
 
     # UI ----------------------------------------
     
@@ -42,11 +29,6 @@ class addonPreferences(bpy.types.AddonPreferences):
         col.label(text="produced by the Slicers GUI app, EasyMYP, or any similar tool.")
         pref_box.prop(self, 'swtor_resources_path', expand=True)
 
-        # Quickscale factor preferences UI
-        pref_box = layout.box()
-        row=pref_box.row()
-        row.label(text="Quick Upscale / Downscale Factor")
-        row.prop(self, 'swtor_quickscale_factor', text='')
         
 
 # Registrations
