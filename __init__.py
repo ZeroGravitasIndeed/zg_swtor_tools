@@ -26,7 +26,9 @@ modulesNames = [
     'remove_doubles',
     'deduplicate_nodegroups',
     'set_backface_culling',
-    'quickscale'
+    'quickscale',
+    'adjust_normals_emissives',
+    'set_modifiers',
     ]
   
 modulesFullNames = {}

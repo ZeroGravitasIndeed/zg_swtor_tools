@@ -35,6 +35,42 @@ class ZGSWTOR_PT_materials_tools(bpy.types.Panel):
         in_row.operator("zgswtor.set_backface_culling", text="Off").action="BACKFACE_CULLING_OFF"
 
 
+        # # adjust_normals_emissives UI
+        # tool_section = layout.box()
+        # split = tool_section.split()
+        
+        # col = split.column(align=True)
+        # col.scale_y = 0.9
+        # col.label(text="Shader")
+        # col.label(text="Uber")
+        # col.label(text="Creature")
+        # col.label(text="Garment")
+        # col.label(text="SkinB")
+        # col.label(text="HairC")
+        # col.label(text="Eye")
+
+        # col = split.column(align=True)
+        # col.scale_y = 0.9
+        # col.label(text="Normals")
+        # col.prop(context.scene, "uber_normals_fac", slider=True)
+        # col.prop(context.scene, "creature_normals_fac", slider=True)
+        # col.prop(context.scene, "garment_normals_fac", slider=True)
+        # col.prop(context.scene, "skinb_normals_fac", slider=True)
+        # col.prop(context.scene, "hairc_normals_fac", slider=True)
+        # col.prop(context.scene, "eye_normals_fac", slider=True)
+
+        # col = split.column(align=True)
+        # col.scale_y = 0.9
+        # col.label(text="Emission")
+        # col.prop(context.scene, "uber_emission_fac", slider=True)
+        # col.prop(context.scene, "creature_emission_fac", slider=True)
+        # col.prop(context.scene, "garment_emission_fac", slider=True)
+        # col.prop(context.scene, "skinb_emission_fac", slider=True)
+        # col.prop(context.scene, "hairc_emission_fac", slider=True)
+        # col.prop(context.scene, "eye_emission_fac", slider=True)
+
+
+
 
 # Objects Tools sub-panel
 class ZGSWTOR_PT_objects_tools(bpy.types.Panel):
@@ -45,19 +81,40 @@ class ZGSWTOR_PT_objects_tools(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        
-        # remove_doubles UI
-        tool_section = layout.box()
-        tool_section.operator("zgswtor.remove_doubles", text="Merge Double Vertices")
 
         # quickscale UI
         tool_section = layout.box()
         row = tool_section.row(align=True)
-        row.operator("zgswtor.quickscale", text="Upscale").action="UPSCALE"
+        row.operator("zgswtor.quickscale", text="Upscale").action = "UPSCALE"
+        
         in_row = row.row()  # for a non-50% contiguous row region
         in_row.scale_x = 0.9
         in_row.prop(context.scene, "zgswtor_quickscale_factor", text="")
-        row.operator("zgswtor.quickscale", text="Downscale").action="DOWNSCALE"
+        
+        row.operator("zgswtor.quickscale", text="Downscale").action = "DOWNSCALE"
+
+
+        # remove_doubles UI
+        tool_section = layout.box()
+        tool_section.operator("zgswtor.remove_doubles", text="Merge Double Vertices")
+
+
+        # set_modifiers UI
+        tool_section = layout.box()
+        row = tool_section.row()
+        row.operator("zgswtor.set_modifiers", text="Add SubD").action = "add_subd"
+        row.operator("zgswtor.set_modifiers", text="Add Multires").action = "add_multires"
+        row = tool_section.row()
+        row.operator("zgswtor.set_modifiers", text="Add Displace").action = "add_displace"
+        row.operator("zgswtor.set_modifiers", text="Add Solidify").action = "add_solidify"
+        row = tool_section.row()
+        row.operator("zgswtor.set_modifiers", text="Remove them").action = "remove_them"
+        row = tool_section.row()
+        row.label(text="Move Armature to")
+        in_row = row.row(align=True)  # for setting a non-50% contiguous row region
+        in_row.scale_x = 0.55
+        in_row.operator("zgswtor.set_modifiers", text="First").action = "armature_first"
+        in_row.operator("zgswtor.set_modifiers", text="Last").action = "armature_last"
 
 
 

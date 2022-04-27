@@ -26,7 +26,9 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
             return False
 
     # ------------------------------------------------------------------
-    #Define some checkbox-type properties
+    # Define some checkbox-type properties
+    # (they'll interact with scene-level properties
+    # used in the UI panel)
     
     use_overwrite_bool: bpy.props.BoolProperty(
         name="Overwrite Uber materials",
@@ -47,11 +49,11 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
     # ------------------------------------------------------------------
     def execute(self, context):
 
-        if self.use_collect_colliders_bool != bpy.context.scene.use_collect_colliders_bool:
-            self.use_collect_colliders_bool = bpy.context.scene.use_collect_colliders_bool
+        # Make operator properties equal to UI properties
+        self.use_collect_colliders_bool = bpy.context.scene.use_collect_colliders_bool
+        
+        self.use_overwrite_bool = bpy.context.scene.use_overwrite_bool
 
-        if self.use_overwrite_bool != bpy.context.scene.use_overwrite_bool:
-            self.use_overwrite_bool = bpy.context.scene.use_overwrite_bool
 
         selected_objects = bpy.context.selected_objects
         if not selected_objects:
@@ -60,6 +62,7 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
         # --------------------------------------------------------------
         # Get the extracted SWTOR assets' "resources" folder from the add-on's preferences. 
         swtor_resources_path = bpy.context.preferences.addons[__package__].preferences.swtor_resources_path
+        
         swtor_shaders_path = swtor_resources_path + "/art/shaders/materials"
 
         # Test the existence of the shaders subfolder to validate the SWTOR "resources" folder
