@@ -46,7 +46,7 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
 
     # METHODS
 
-    # Methods doing the actual scaling    
+    # Methods doing the actual scaling
     @staticmethod
     def upscale(objs, factor):
         for obj in objs:
