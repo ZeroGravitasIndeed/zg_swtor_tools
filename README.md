@@ -72,7 +72,7 @@ The usefulness of this tool becomes apparent when having to deal with interior s
 ## SWTOR Objects Tools:
 
 ### Quickscaler.
-Scales all selected objects up or down by a factor, preserving their relative distances if their origins don't match. The idea behind the tool is to be able to quickly upscale all objects of a character or a scene to real life-like sizes (1 Blender unit = 1 m. or equivalent), as Blender requires such sizes to successfully calculate things like automatic weightmaps, physics, etc. Cameras, lights and armatures are correctly scaled, and it acts only on non-parented and parent objects, to avoid double-scaling children objects.
+Scales all selected objects up or down by a factor, preserving their relative distances if their origins don't match. The idea behind the tool is to be able to quickly upscale all objects of a character or a scene to real life-like sizes (1 Blender unit = 1 m. or equivalent), as Blender requires such sizes to successfully calculate things like automatic weightmaps, physics, etc. Cameras, lights and armatures are correctly scaled, and it acts only on non-parented and parent objects, to avoid double-scaling children objects (typically, objects parented to a skeleton).
 
 Any number between 1 and 100 can be manually entered. Recommended factors are:
 * 10, for simplicity. It results in rather superheroically-sized characters.
@@ -82,6 +82,8 @@ Any number between 1 and 100 can be manually entered. Recommended factors are:
 Merges "duplicate" vertices (applies a "Merge By Distance" with a tolerance of 0.000001 m.), which usually solves many issues when fusing body parts or applying Subdivision or Multiresolution Modifiers.
 * Requires a selection of one or several game objects.
 * When selecting multiple objects, the tool acts on each of them separately so as not to merge vertices of different objects by accident.
+* To correct any possible normals problems derived from the operation, it performs a face area normals' averaging operation, too.
+* Also, it sets each object's Auto Smooth to On (it's typically on by default, but, just in case…).
 
 ### Modifiers Tools.
 They add to all selected objects Modifiers like Subdivision or Multires (for hiding SWTOR's models' low poly nature) and Displace and Solidify (to facilitate gear-over-full body workflows), with sensible settings as an easy starting point. There is a Modifiers removal button that only affects those Modifier types, preserving any other, such as the Armature modifier that results from parenting a skeleton. Also, there are buttons for moving such Armature modifiers to the top or the bottom of the Modifier Stack, for both usefulness and experimentation.
