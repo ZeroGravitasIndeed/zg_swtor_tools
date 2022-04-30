@@ -108,7 +108,7 @@ class ZGSWTOR_PT_objects_tools(bpy.types.Panel):
         row.operator("zgswtor.set_modifiers", text="Add Displace").action = "add_displace"
         row.operator("zgswtor.set_modifiers", text="Add Solidify").action = "add_solidify"
         row = tool_section.row()
-        row.operator("zgswtor.set_modifiers", text="Remove them").action = "remove_them"
+        row.operator("zgswtor.set_modifiers", text="Remove These Modifiers").action = "remove_them"
         row = tool_section.row()
         row.label(text="Move Armature to")
         in_row = row.row(align=True)  # for setting a non-50% contiguous row region

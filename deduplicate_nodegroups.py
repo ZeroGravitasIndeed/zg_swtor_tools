@@ -28,6 +28,8 @@ class ZGSWTOR_OT_deduplicate_nodegroups(bpy.types.Operator):
     bl_options = {'REGISTER', "UNDO"}
 
     def execute( self, context ):
+        bpy.context.window.cursor_set("WAIT")
+
         #--- Search for duplicates in actual node groups
         ng_counter = 0
         node_groups = bpy.data.node_groups
@@ -48,6 +50,7 @@ class ZGSWTOR_OT_deduplicate_nodegroups(bpy.types.Operator):
                         eliminateNG(node)
                         ng_counter += 1
 
+        bpy.context.window.cursor_set("DEFAULT")
         self.report({'INFO'}, str(ng_counter) + " duplicate Nodegroups deduped and set to zero users" )
         return {'FINISHED'}
 

@@ -5,7 +5,7 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
     bl_idname = "zgswtor.quickscale"
     bl_label = "SWTOR Tools"
     bl_options = {'REGISTER', "UNDO"}
-    bl_description = "Quickscaler:\nResizes objects preserving their relative distances to facilitate\noperations that require real life-like sizes (e.g., auto-weight painting).\n\n• Requires a selection of objects"
+    bl_description = "Quickscaler:\nResizes objects preserving their relative distances to facilitate\noperations that require real life-like sizes (e.g., auto-weight painting).\n\n• Requires a selection of objects.\n• Affects unparented objects only"
 
     # Check that there is a selection of objects (greys-out the UI button otherwise) 
     @classmethod
@@ -68,6 +68,8 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
         # Scales both sizes and positions in respect to the origin so that
         # the whole scene's object spacing is correctly preserved.
 
+        bpy.context.window.cursor_set("WAIT")
+
         self.quickscale_factor = bpy.context.scene.zgswtor_quickscale_factor
 
         selected_objects = [obj for obj in bpy.context.selected_objects if not obj.parent]
@@ -78,6 +80,7 @@ class ZGSWTOR_OT_quickscale(bpy.types.Operator):
             elif self.action == "DOWNSCALE":
                 self.downscale(selected_objects, self.quickscale_factor)
 
+        bpy.context.window.cursor_set("DEFAULT")
         return {"FINISHED"}
 
 

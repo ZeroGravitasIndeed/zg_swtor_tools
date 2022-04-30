@@ -38,6 +38,8 @@ class ZGSWTOR_OT_set_backface_culling(bpy.types.Operator):
 
     
     def execute(self, context):
+        bpy.context.window.cursor_set("WAIT")
+
         selected_objects = [obj for obj in bpy.context.selected_editable_objects
                             if obj.type == "MESH" and not "skeleton" in obj.name]
         
@@ -55,9 +57,11 @@ class ZGSWTOR_OT_set_backface_culling(bpy.types.Operator):
                 elif self.action == "BACKFACE_CULLING_OFF":
                     self.set_backface_culling_off(mats)
 
+            bpy.context.window.cursor_set("DEFAULT")
             return {"FINISHED"}
 
         else:
+            bpy.context.window.cursor_set("DEFAULT")
             self.report({"WARNING"}, "No objects with materials were selected.")
             return {"CANCELLED"}
 

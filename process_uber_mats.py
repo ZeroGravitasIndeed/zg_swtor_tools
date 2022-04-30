@@ -49,6 +49,8 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
     # ------------------------------------------------------------------
     def execute(self, context):
 
+        bpy.context.window.cursor_set("WAIT")
+        
         # Make operator properties equal to UI properties
         self.use_collect_colliders_bool = bpy.context.scene.use_collect_colliders_bool
         
@@ -420,7 +422,8 @@ class ZGSWTOR_OT_process_uber_mats(bpy.types.Operator):
                 if not collider.name in colliders_collection.objects:
                     colliders_collection.objects.link(collider)
 
-            
+
+        bpy.context.window.cursor_set("DEFAULT")
         return {"FINISHED"}
 
 

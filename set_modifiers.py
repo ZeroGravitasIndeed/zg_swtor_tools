@@ -37,30 +37,34 @@ class ZGSWTOR_OT_set_modifiers(bpy.types.Operator):
 
     @staticmethod
     def add_subd(obj):
-        '''test'''
+        bpy.context.window.cursor_set("WAIT")
         if not "Subdivision" in obj.modifiers:
             mod = obj.modifiers.new(name= "Subdivision", type="SUBSURF")
 
     @staticmethod
     def add_multires(obj):
+        bpy.context.window.cursor_set("WAIT")
         if not "Multires" in obj.modifiers:
             mod = obj.modifiers.new(name= "Multires", type="MULTIRES")
             bpy.ops.object.multires_subdivide({'object': obj}, modifier="Multires", mode='CATMULL_CLARK')
 
     @staticmethod
     def add_displace(obj):
+        bpy.context.window.cursor_set("WAIT")
         if not "Displace" in obj.modifiers:
             mod = obj.modifiers.new(name= "Displace", type="DISPLACE")
             mod.strength = 0.0002
 
     @staticmethod
     def add_solidify(obj):
+        bpy.context.window.cursor_set("WAIT")
         if not "Solidify" in obj.modifiers:
             mod = obj.modifiers.new(name= "Solidify", type="SOLIDIFY")
             mod.thickness = 0.0002
 
     @staticmethod
     def remove_them(obj):
+        bpy.context.window.cursor_set("WAIT")
         removable_modifiers = [
             "Subdivision",
             "Multires",
@@ -74,6 +78,7 @@ class ZGSWTOR_OT_set_modifiers(bpy.types.Operator):
 
     @staticmethod
     def armature_first(obj):
+        bpy.context.window.cursor_set("WAIT")
         index = obj.modifiers.find("Armature")
         if index != -1:
             for i in range(index):
@@ -81,6 +86,7 @@ class ZGSWTOR_OT_set_modifiers(bpy.types.Operator):
 
     @staticmethod
     def armature_last(obj):
+        bpy.context.window.cursor_set("WAIT")
         index = obj.modifiers.find("Armature")
         if index != -1:
             mod_stack_depth = len(obj.modifiers)
@@ -90,7 +96,6 @@ class ZGSWTOR_OT_set_modifiers(bpy.types.Operator):
                         bpy.ops.object.modifier_move_down({'object': obj}, modifier="Armature")
                     except:
                         pass  # in case of failure because of Multires/SubD priority
-
 
     
     def execute(self, context):
@@ -116,10 +121,11 @@ class ZGSWTOR_OT_set_modifiers(bpy.types.Operator):
                     self.armature_last(obj)
 
 
-                
+            bpy.context.window.cursor_set("DEFAULT")
             return {"FINISHED"}
 
         else:
+            bpy.context.window.cursor_set("DEFAULT")
             self.report({"WARNING"}, "No modifiable objects were selected.")
             return {"CANCELLED"}
 

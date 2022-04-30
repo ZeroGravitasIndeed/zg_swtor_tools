@@ -25,6 +25,8 @@ class ZGSWTOR_OT_adjust_normals_emissives(bpy.types.Operator):
 
     def execute(self, context):
 
+        bpy.context.window.cursor_set("WAIT")
+
         # --------------------------------------------------------------
         # Check which version of the SWTOR shaders are available
         if addon_utils.check("io_scene_gr2_legacy")[1]:
@@ -50,7 +52,7 @@ class ZGSWTOR_OT_adjust_normals_emissives(bpy.types.Operator):
                         if subnode.name == "Normal Map":
                             subnode.inputs[0].default_value = self.SetNormalsStrengthFloat
                         
-            
+        bpy.context.window.cursor_set("DEFAULT")
         return {"FINISHED"}
 
 

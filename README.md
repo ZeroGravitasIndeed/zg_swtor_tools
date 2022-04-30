@@ -87,6 +87,7 @@ Merges "duplicate" vertices (applies a "Merge By Distance" with a tolerance of 0
 They add to all selected objects Modifiers like Subdivision or Multires (for hiding SWTOR's models' low poly nature) and Displace and Solidify (to facilitate gear-over-full body workflows), with sensible settings as an easy starting point. There is a Modifiers removal button that only affects those Modifier types, preserving any other, such as the Armature modifier that results from parenting a skeleton. Also, there are buttons for moving such Armature modifiers to the top or the bottom of the Modifier Stack, for both usefulness and experimentation.
 
 * Requires a selection of one or several game objects.
+* The Armature Modifier re-ordering buttons don't work by selecting Armature objects yet: only by selecting objects with Armature Modifiers. The former functionality will be considered for an update.
 
 ## SWTOR Misc. Tools:
 For now these are simply a few already existing Blender tools that are a little too buried inside their panels and would be nice to have more at hand.
