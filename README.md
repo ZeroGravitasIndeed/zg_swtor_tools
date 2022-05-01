@@ -1,3 +1,5 @@
+## For visibility and convenience's sake, this repository has moved to:<br>[SWTOR Slicers / zg_swtor_tools](https://github.com/SWTOR-Slicers/zg_swtor_tools).
+
 # ZeroGravitas' SWTOR Tools.
 
 This Blender Add-on provides with a miscellanea of tools to use on **Star Wars: The Old Republic**'s game assets, including an Uber Materials Processor for static game models. It will grow in features as they occur to me 😛. Quality of code-wise, "this is not a place of honor". Still, it works, kindasorta.
